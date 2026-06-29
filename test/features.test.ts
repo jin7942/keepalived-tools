@@ -186,3 +186,41 @@ test("includeLinks: extracts glob and range from include directives", () => {
 test("includeLinks: none when no include", () => {
   assert.deepEqual(includeLinks("global_defs {\n}\n"), []);
 });
+
+// ---- 포맷터 안전성 회귀 (공식 샘플) ----
+
+import { readdirSync as _readdirSync } from "node:fs";
+import { readFileSync as _readFileSync } from "node:fs";
+import { join as _join } from "node:path";
+import { parse as _parse } from "../core/parser/index.js";
+
+const _SAMPLES = _join(__dirname, "fixtures", "samples");
+
+/** 포맷 전후 내용 보존 검증용: 비공백 토큰 시그니처. */
+function tokenSig(text: string): string {
+  const toks: string[] = [];
+  const walk = (body: any[]) => {
+    for (const c of body) {
+      if (c.type === "block") {
+        toks.push("B:" + c.keyword, ...c.args.map((a: any) => a.text));
+        walk(c.body);
+        toks.push("}");
+      } else if (c.type === "directive") {
+        toks.push("D:" + c.keyword, ...c.values.map((v: any) => v.text));
+      } else if (c.type === "include") {
+        toks.push("I:" + c.glob);
+      }
+    }
+  };
+  walk(_parse(text).ast.body);
+  return toks.join("|");
+}
+
+for (const file of _readdirSync(_SAMPLES).filter((f) => f.endsWith(".conf"))) {
+  test(`formatter idempotent + content-preserving: ${file}`, () => {
+    const orig = _readFileSync(_join(_SAMPLES, file), "utf8");
+    const once = format(orig);
+    assert.equal(format(once), once, `not idempotent: ${file}`);
+    assert.equal(tokenSig(once), tokenSig(orig), `content altered: ${file}`);
+  });
+}

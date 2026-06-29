@@ -34,8 +34,9 @@ export function validateSyntax(
     const known = schema.hasBlock(block.keyword);
 
     if (!known) {
-      // 부모가 스키마에 있고 자식 목록을 아는 경우에만 미지시어 단정.
-      if (parent !== null && schema.hasBlock(parent)) {
+      // 미지블록 단정은 부모가 complete(자식 목록 완전)일 때만 (ADR-0009).
+      // 시드 스키마는 부분적이므로 기본 침묵 → 정상 블록 오탐 방지.
+      if (parent !== null && schema.block(parent)?.complete) {
         out.push(
           diag(
             headerRange(block),
@@ -45,7 +46,6 @@ export function validateSyntax(
           )
         );
       }
-      // 부모가 최상위(null)인데 모르는 블록: 스키마 미커버 가능 → 침묵.
       return;
     }
 
@@ -78,7 +78,8 @@ export function validateSyntax(
 
     if (!dirSpec) {
       // 부모 블록이 자식 블록으로 이 keyword 를 허용하면 종류 오용(블록을 `{` 없이 씀).
-      if (block?.subBlocks?.includes(directive.keyword)) {
+      // 단, 그 자식이 freeform 이면 인라인 형태도 허용될 수 있어 단정 회피.
+      if (block?.subBlocks?.includes(directive.keyword) && !schema.block(directive.keyword)?.freeform) {
         out.push(
           diag(
             directive.range,
@@ -89,14 +90,17 @@ export function validateSyntax(
         );
         return;
       }
-      out.push(
-        diag(
-          directive.range,
-          "error",
-          "SYNTAX_UNKNOWN_DIRECTIVE",
-          `Unknown directive '${directive.keyword}' in '${parent}'`
-        )
-      );
+      // 미지시어 단정은 부모가 complete 일 때만 (ADR-0009).
+      if (block?.complete) {
+        out.push(
+          diag(
+            directive.range,
+            "error",
+            "SYNTAX_UNKNOWN_DIRECTIVE",
+            `Unknown directive '${directive.keyword}' in '${parent}'`
+          )
+        );
+      }
     }
   });
 

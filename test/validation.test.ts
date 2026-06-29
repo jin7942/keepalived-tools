@@ -47,9 +47,18 @@ test("syntax: real_server misplaced reports INVALID_PARENT", () => {
   assert.ok(codes(diags).includes("SYNTAX_INVALID_PARENT"));
 });
 
-test("syntax: unknown directive in known block", () => {
-  const diags = validateText("vrrp_instance VI {\n bogus_dir 1\n}\n");
+test("syntax: unknown directive in COMPLETE block is flagged", () => {
+  // authentication 은 complete:true → 미수록 지시어 검출.
+  const diags = validateText(
+    "vrrp_instance VI {\n authentication {\n bogus_dir 1\n }\n}\n"
+  );
   assert.ok(codes(diags).includes("SYNTAX_UNKNOWN_DIRECTIVE"));
+});
+
+test("syntax: unknown directive in PARTIAL block is silent (ADR-0009)", () => {
+  // vrrp_instance 는 complete 아님 → 미수록 정상 지시어 오탐 방지.
+  const diags = validateText("vrrp_instance VI {\n some_new_directive 1\n}\n");
+  assert.ok(!codes(diags).includes("SYNTAX_UNKNOWN_DIRECTIVE"));
 });
 
 test("syntax: unknown block under unknown parent is silent (ADR-0009)", () => {
@@ -140,6 +149,40 @@ test("semantic: unused is suppressed by default", () => {
 test("semantic: unused reported when opted in", () => {
   const diags = validateText('vrrp_script lonely {\n script "x"\n}\n', { reportUnused: true });
   assert.ok(codes(diags).includes("SEMANTIC_UNUSED"));
+});
+
+// ---- 오탐 회귀 방지 (리뷰 C1/C2/C3/M1/M2 — 흔한 정상 설정) ----
+
+test("no-false-positive: notification_email block form", () => {
+  const diags = validateText("global_defs {\n notification_email {\n a@b.com\n }\n}\n");
+  assert.deepEqual(codes(diags), []);
+});
+
+test("no-false-positive: virtual_server fwmark header", () => {
+  const diags = validateText("virtual_server fwmark 1 {\n protocol TCP\n}\n");
+  assert.deepEqual(codes(diags), []);
+});
+
+test("no-false-positive: virtual_server group header", () => {
+  const diags = validateText("virtual_server group mygroup {\n protocol TCP\n}\n");
+  assert.deepEqual(codes(diags), []);
+});
+
+test("no-false-positive: virtual_ipaddress block", () => {
+  const conf =
+    "vrrp_instance VI {\n interface eth0\n virtual_router_id 51\n virtual_ipaddress {\n 192.168.1.1\n 192.168.1.2/24 dev eth0\n }\n}\n";
+  assert.deepEqual(codes(validateText(conf)), []);
+});
+
+test("no-false-positive: unlisted valid global_defs directive", () => {
+  const diags = validateText("global_defs {\n vrrp_version 3\n lvs_sync_daemon eth0 VI_1\n}\n");
+  assert.deepEqual(codes(diags), []);
+});
+
+test("no-false-positive: track_script directive form with defined script", () => {
+  const conf =
+    'vrrp_script chk { script "/x" }\nvrrp_instance VI {\n interface eth0\n virtual_router_id 51\n track_script chk\n}\n';
+  assert.ok(!codes(validateText(conf)).includes("SEMANTIC_UNDEFINED_REF"));
 });
 
 // ---- 층4 include ----

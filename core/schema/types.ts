@@ -90,8 +90,14 @@ export interface BlockSpec {
   root?: boolean;
   /** 이 블록이 올 수 있는 부모 블록 이름들 (root=false 일 때 구문 검증용). */
   validParents?: string[];
-  /** 블록 헤더 인자. */
+  /** 블록 헤더 인자 (기본 형태). */
   args?: ArgSpec[];
+  /**
+   * 헤더가 키워드로 시작하는 대체 형태를 가질 때 그 키워드들.
+   * 예: virtual_server 는 `<ip> [port]` 외에 `fwmark <n>` / `group <name>` 형태.
+   * 첫 인자가 이 목록에 속하면 기본 args 타입검사를 면제한다.
+   */
+  argKeywords?: string[];
   /** 직접 포함하는 지시어. */
   directives?: Record<string, DirectiveSpec>;
   /** 중첩 허용 블록 이름들. */
@@ -101,6 +107,12 @@ export interface BlockSpec {
    * (예: `track_script { name1 name2 }`) 본문 미지시어 검사를 스킵한다.
    */
   freeform?: boolean;
+  /**
+   * 지시어/자식블록 목록이 완전한가.
+   * true 일 때만 미지시어/미지블록을 error 로 단정한다(ADR-0009).
+   * 시드 스키마는 부분적이므로 기본 false → 오탐 방지.
+   */
+  complete?: boolean;
   /** 동일 의미의 정규형 블록 이름. 있으면 이 블록은 alias. */
   aliasOf?: string;
   /** 조건부 컴파일 플래그. */

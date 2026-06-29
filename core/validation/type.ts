@@ -36,6 +36,10 @@ export function validateTypes(file: ConfFile, schema: SchemaIndex): Diagnostic[]
     const spec = schema.block(block.keyword);
     const argSpecs = spec?.args;
     if (!argSpecs) return;
+    // 대체 헤더 형태(fwmark/group 등): 기본 args 타입검사 면제.
+    if (spec?.argKeywords && block.args.length > 0 && spec.argKeywords.includes(block.args[0].text)) {
+      return;
+    }
     for (let idx = 0; idx < argSpecs.length && idx < block.args.length; idx++) {
       const argSpec = argSpecs[idx];
       const v = block.args[idx];

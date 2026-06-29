@@ -7,6 +7,7 @@
       "description": "전역 설정 블록. 알림(notification), router_id, 타이머 등.",
       "source": "manual",
       "srcRef": "global_parser.c:2601",
+      "subBlocks": ["notification_email"],
       "directives": {
         "router_id": { "type": "string", "maxOccurs": 1, "source": "manual", "description": "라우터 식별 문자열." },
         "notification_email": { "type": "string", "source": "manual", "description": "알림 수신 이메일 주소." },
@@ -30,7 +31,7 @@
       "args": [
         { "name": "name", "type": "string", "required": true, "defines": "vrrp_instances", "description": "인스턴스 이름." }
       ],
-      "subBlocks": ["authentication", "auth_hmac", "track_script", "track_interface"],
+      "subBlocks": ["authentication", "auth_hmac", "track_script", "track_interface", "virtual_ipaddress", "virtual_ipaddress_excluded", "virtual_routes", "virtual_rules"],
       "directives": {
         "state": { "type": "enum", "values": ["MASTER", "BACKUP"], "maxOccurs": 1, "source": "manual", "srcRef": "vrrp_parser.c:838", "description": "초기 VRRP 상태." },
         "interface": { "type": "string", "required": true, "maxOccurs": 1, "source": "manual", "description": "VRRP가 동작할 네트워크 인터페이스." },
@@ -52,6 +53,7 @@
     "authentication": {
       "kind": "block",
       "root": false,
+      "complete": true,
       "validParents": ["vrrp_instance"],
       "description": "VRRP 인증 설정.",
       "source": "manual",
@@ -80,6 +82,52 @@
       "description": "추적 인터페이스 목록 블록. 본문에 인터페이스명(+가중치)을 나열.",
       "source": "manual",
       "srcRef": "vrrp_parser.c:2349"
+    },
+
+    "virtual_ipaddress": {
+      "kind": "block",
+      "root": false,
+      "freeform": true,
+      "validParents": ["vrrp_instance"],
+      "description": "VRRP가 관리하는 가상 IP 주소 목록 (VIP). 본문에 IP[/prefix] [dev ...] 나열.",
+      "source": "manual",
+      "srcRef": "vrrp_parser.c"
+    },
+
+    "virtual_ipaddress_excluded": {
+      "kind": "block",
+      "root": false,
+      "freeform": true,
+      "validParents": ["vrrp_instance"],
+      "description": "advertisement 에서 제외할 VIP 목록.",
+      "source": "manual"
+    },
+
+    "virtual_routes": {
+      "kind": "block",
+      "root": false,
+      "freeform": true,
+      "validParents": ["vrrp_instance"],
+      "description": "MASTER 전환 시 설정할 정적 경로 목록.",
+      "source": "manual"
+    },
+
+    "virtual_rules": {
+      "kind": "block",
+      "root": false,
+      "freeform": true,
+      "validParents": ["vrrp_instance"],
+      "description": "MASTER 전환 시 설정할 정책 라우팅 규칙 목록.",
+      "source": "manual"
+    },
+
+    "notification_email": {
+      "kind": "block",
+      "root": false,
+      "freeform": true,
+      "validParents": ["global_defs"],
+      "description": "알림 수신 이메일 주소 목록 블록.",
+      "source": "manual"
     },
 
     "vrrp_sync_group": {
@@ -130,6 +178,7 @@
         { "name": "ip", "type": "ip", "required": true, "description": "가상 서버 IP (또는 fwmark/group)." },
         { "name": "port", "type": "port", "required": false, "description": "가상 서버 포트." }
       ],
+      "argKeywords": ["fwmark", "group"],
       "subBlocks": ["real_server", "SSL"],
       "directives": {
         "lvs_sched": { "type": "enum", "values": ["rr", "wrr", "lc", "wlc", "lblc", "sh", "mh", "dh", "fo", "ovf", "lblcr", "sed", "nq", "twos"], "maxOccurs": 1, "source": "manual", "srcRef": "check_parser.c:53", "description": "스케줄링 알고리즘." },

@@ -278,3 +278,23 @@ test("CRLF config validates clean (no false diagnostics)", () => {
   const diags = validateText("vrrp_instance VI {\r\n priority 100\r\n}\r\n");
   assert.deepEqual(codes(diags), []);
 });
+
+// ---- 공식 샘플 거짓 양성 회귀 (신뢰성 결정적 증거) ----
+// keepalived 2.3.4 공식 doc/samples 를 검증해 error 진단이 0 인지 확인.
+// 실제 정상 설정에 error 가 뜨면 신뢰성 위반(validation §1.1).
+
+import { readdirSync } from "node:fs";
+
+const SAMPLE_DIR = join(__dirname, "fixtures", "samples");
+
+for (const file of readdirSync(SAMPLE_DIR).filter((f) => f.endsWith(".conf"))) {
+  test(`official sample produces no error diagnostics: ${file}`, () => {
+    const diags = validateText(fixture(`samples/${file}`));
+    const errors = diags.filter((d) => d.severity === "error");
+    assert.deepEqual(
+      errors.map((e) => `${e.code}@${e.range.start.line + 1}: ${e.message}`),
+      [],
+      `false-positive errors in ${file}`
+    );
+  });
+}

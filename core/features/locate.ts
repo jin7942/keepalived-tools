@@ -47,7 +47,6 @@ function blockKeywordRange(block: Block): Range {
  */
 export function locate(file: ConfFile, line: number, col: number): LocationContext {
   const pos = { line, col };
-  let parent: string | null = null;
   let result: LocationContext = { parentBlock: null };
 
   const recur = (children: BlockChild[], currentParent: string | null) => {
@@ -66,7 +65,6 @@ export function locate(file: ConfFile, line: number, col: number): LocationConte
         }
         // 블록 본문 안?
         if (inRange(pos, c.range)) {
-          parent = c.keyword;
           result = { parentBlock: c.keyword };
           if (recur(c.body, c.keyword)) return true;
           // 본문 안이지만 특정 자식 위는 아님 → parentBlock 만 유지.
@@ -95,6 +93,5 @@ export function locate(file: ConfFile, line: number, col: number): LocationConte
   };
 
   recur(file.body, null);
-  void parent;
   return result;
 }

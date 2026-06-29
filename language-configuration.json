@@ -16,5 +16,20 @@
       "start": "^\\s*[\\w@^]+.*\\{\\s*$",
       "end": "^\\s*\\}\\s*$"
     }
-  }
+  },
+  "indentationRules": {
+    "increaseIndentPattern": "\\{\\s*(?:[#!].*)?$",
+    "decreaseIndentPattern": "^\\s*\\}"
+  },
+  "onEnterRules": [
+    {
+      "beforeText": "\\{\\s*(?:[#!].*)?$",
+      "afterText": "^\\s*\\}",
+      "action": { "indent": "indentOutdent" }
+    },
+    {
+      "beforeText": "\\{\\s*(?:[#!].*)?$",
+      "action": { "indent": "indent" }
+    }
+  ]
 }

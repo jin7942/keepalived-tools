@@ -15,6 +15,22 @@ import { toVsRange, toVsSeverity } from "./convert.js";
 const DEBOUNCE_MS = 300;
 const LANGUAGE_ID = "keepalived";
 
+/** 사용자 설정을 core ValidateOptions 로 변환. */
+function readOptions(doc: vscode.TextDocument): {
+  enable: boolean;
+  maxFileSize: number;
+  reportUnused: boolean;
+  reportMissingRequired: boolean;
+} {
+  const cfg = vscode.workspace.getConfiguration("keepalived.validation", doc.uri);
+  return {
+    enable: cfg.get<boolean>("enable", true),
+    maxFileSize: cfg.get<number>("maxFileSize", 1048576),
+    reportUnused: cfg.get<boolean>("reportUnused", false),
+    reportMissingRequired: cfg.get<boolean>("reportMissingRequired", false),
+  };
+}
+
 export function registerDiagnostics(context: vscode.ExtensionContext): void {
   const collection = vscode.languages.createDiagnosticCollection("keepalived");
   context.subscriptions.push(collection);
@@ -38,7 +54,12 @@ export function registerDiagnostics(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((e) => schedule(e.document)),
     vscode.workspace.onDidOpenTextDocument((doc) => schedule(doc)),
-    vscode.workspace.onDidCloseTextDocument((doc) => collection.delete(doc.uri))
+    vscode.workspace.onDidCloseTextDocument((doc) => collection.delete(doc.uri)),
+    // 설정 변경 시 열린 문서 전부 재검증.
+    vscode.workspace.onDidChangeConfiguration((e) => {
+      if (!e.affectsConfiguration("keepalived")) return;
+      for (const doc of vscode.workspace.textDocuments) schedule(doc);
+    })
   );
 
   // 이미 열린 문서.
@@ -49,20 +70,43 @@ async function runValidation(
   doc: vscode.TextDocument,
   collection: vscode.DiagnosticCollection
 ): Promise<void> {
-  const text = doc.getText();
-  const includes = collectIncludeGlobs(text);
+  // 한 문서의 예외가 기능 전체를 깨뜨리지 않도록 격리.
+  try {
+    const opts = readOptions(doc);
+    if (!opts.enable) {
+      collection.delete(doc.uri);
+      return;
+    }
 
-  if (includes.length === 0) {
-    publish(collection, doc.uri, validateText(text));
-    return;
+    const text = doc.getText();
+    // 대용량 파일 가드: 매 타이핑 전체 재파싱이 에디터를 지연시키지 않도록.
+    if (opts.maxFileSize > 0 && Buffer.byteLength(text, "utf8") > opts.maxFileSize) {
+      collection.delete(doc.uri);
+      return;
+    }
+
+    const coreOpts = {
+      reportUnused: opts.reportUnused,
+      reportMissingRequired: opts.reportMissingRequired,
+    };
+    const includes = collectIncludeGlobs(text);
+
+    if (includes.length === 0) {
+      publish(collection, doc.uri, validateText(text, coreOpts));
+      return;
+    }
+
+    // 다중 파일: include 를 resolve 해 텍스트 수집.
+    const entryPath = doc.uri.fsPath;
+    const files = await gatherFiles(entryPath, text);
+    const resultMap = validateFiles(files, entryPath, coreOpts);
+    // 진입 문서 진단만 현재 문서에 표시(다른 파일은 열릴 때 각자 검증).
+    publish(collection, doc.uri, resultMap.get(entryPath) ?? []);
+  } catch (err) {
+    // 진단 실패는 조용히 무시(stale 방지 위해 비움). 콘솔에만 기록.
+    console.error("keepalived: validation failed", err);
+    collection.delete(doc.uri);
   }
-
-  // 다중 파일: include 를 resolve 해 텍스트 수집.
-  const entryPath = doc.uri.fsPath;
-  const files = await gatherFiles(entryPath, text);
-  const resultMap = validateFiles(files, entryPath);
-  // 진입 문서 진단만 현재 문서에 표시(다른 파일은 열릴 때 각자 검증).
-  publish(collection, doc.uri, resultMap.get(entryPath) ?? []);
 }
 
 function collectIncludeGlobs(text: string): string[] {

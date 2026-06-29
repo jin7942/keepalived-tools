@@ -2,9 +2,14 @@
   "name": "keepalived-tools",
   "displayName": "Keepalived Configuration Tools",
   "description": "Syntax highlighting, validation, completion, hover, snippets and formatting for keepalived.conf",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "license": "GPL-2.0-or-later",
   "publisher": "keepalived-tools",
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#185663",
+    "theme": "dark"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/jin7942/keepalived-tools.git"
@@ -63,7 +68,32 @@
         "language": "keepalived",
         "path": "./snippets/keepalived.code-snippets"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Keepalived",
+      "properties": {
+        "keepalived.validation.enable": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Enable diagnostics (syntax, type, semantic, include) for `keepalived.conf` files."
+        },
+        "keepalived.validation.reportMissingRequired": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Report missing required directives (e.g. `script` in a `vrrp_script` block). Off by default to avoid false positives while editing (ADR-0011)."
+        },
+        "keepalived.validation.reportUnused": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Report defined-but-unreferenced symbols (e.g. an unused `vrrp_script`). Off by default — an unreferenced definition is valid keepalived (ADR-0011)."
+        },
+        "keepalived.validation.maxFileSize": {
+          "type": "number",
+          "default": 1048576,
+          "markdownDescription": "Skip validation for files larger than this many bytes, to keep the editor responsive on very large generated configs. Set to `0` to disable the limit."
+        }
+      }
+    }
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -77,6 +107,7 @@
   "devDependencies": {
     "@types/node": "^20.11.0",
     "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.32.0",
     "esbuild": "^0.20.0",
     "tsx": "^4.7.0",
     "typescript": "^5.4.0"

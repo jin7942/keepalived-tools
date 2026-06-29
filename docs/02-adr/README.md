@@ -30,3 +30,5 @@
 | [0009](0009-partial-schema-silence.md) | 부분 커버리지에서 미지시어 침묵 | Accepted |
 | [0010](0010-include-resolution-in-adapter.md) | include resolve=어댑터, 순환감지=core | Accepted |
 | [0011](0011-opt-in-required-and-unused.md) | required·미참조 진단 기본 off | Accepted |
+| [0012](0012-user-settings-and-diagnostics-isolation.md) | 사용자 설정 노출 + 진단 경로 격리 | Accepted |
+| [0013](0013-definition-and-quickfix.md) | 정의 이동·Quick-fix (신뢰성 우선 후보 제한) | Accepted |

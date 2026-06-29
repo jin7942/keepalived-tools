@@ -36,12 +36,18 @@ interface Parsed {
   errors: ParseError[];
 }
 
+export interface IncludeOptions {
+  reportUnused?: boolean;
+  reportMissingRequired?: boolean;
+}
+
 export function validateInclude(
   files: SourceFile[],
   entryPath: string,
   schema: SchemaIndex,
-  reportUnused: boolean
+  options: IncludeOptions = {}
 ): Map<string, Diagnostic[]> {
+  const reportUnused = options.reportUnused === true;
   const result = new Map<string, Diagnostic[]>();
   const byPath = new Map<string, SourceFile>();
   for (const f of files) byPath.set(f.path, f);
@@ -61,7 +67,10 @@ export function validateInclude(
     const diags: Diagnostic[] = [];
     diags.push(...validateSyntax(p.ast, p.errors, schema));
     diags.push(...validateTypes(p.ast, schema));
-    const sem = validateSemantics(p.ast, schema, { symbols: merged });
+    const sem = validateSemantics(p.ast, schema, {
+      symbols: merged,
+      reportMissingRequired: options.reportMissingRequired === true,
+    });
     diags.push(...(reportUnused ? sem : sem.filter((d) => d.code !== "SEMANTIC_UNUSED")));
     result.set(p.path, diags);
   }

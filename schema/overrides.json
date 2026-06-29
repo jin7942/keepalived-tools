@@ -7,21 +7,510 @@
       "description": "전역 설정 블록. 알림(notification), router_id, 타이머 등.",
       "source": "manual",
       "srcRef": "global_parser.c:2601",
-      "subBlocks": ["notification_email"],
+      "subBlocks": [
+        "notification_email"
+      ],
       "directives": {
-        "router_id": { "type": "string", "maxOccurs": 1, "source": "manual", "description": "라우터 식별 문자열." },
-        "notification_email": { "type": "string", "source": "manual", "description": "알림 수신 이메일 주소." },
-        "notification_email_from": { "type": "string", "maxOccurs": 1, "source": "manual", "description": "알림 발신 이메일 주소." },
-        "smtp_server": { "type": "ip", "maxOccurs": 1, "source": "manual", "description": "SMTP 서버 주소." },
-        "smtp_connect_timeout": { "type": "int", "min": 1, "maxOccurs": 1, "source": "manual", "description": "SMTP 연결 타임아웃(초)." },
-        "vrrp_garp_master_delay": { "type": "int", "min": 0, "source": "manual", "description": "MASTER 전환 후 gratuitous ARP 지연(초)." },
-        "vrrp_garp_master_repeat": { "type": "int", "min": 0, "source": "manual", "description": "gratuitous ARP 반복 횟수." },
-        "enable_script_security": { "type": "bool", "maxOccurs": 1, "source": "manual", "description": "비루트 소유 스크립트 실행 제한." },
-        "script_user": { "type": "string", "maxOccurs": 1, "source": "manual", "description": "스크립트 실행 사용자." },
-        "max_auto_priority": { "type": "int", "min": -1, "max": 255, "source": "manual", "description": "자동 우선순위 상한." }
+        "router_id": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "라우터 식별 문자열."
+        },
+        "notification_email": {
+          "type": "string",
+          "source": "manual",
+          "description": "알림 수신 이메일 주소."
+        },
+        "notification_email_from": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "알림 발신 이메일 주소."
+        },
+        "smtp_server": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "SMTP 서버 주소."
+        },
+        "smtp_connect_timeout": {
+          "type": "int",
+          "min": 1,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "SMTP 연결 타임아웃(초)."
+        },
+        "vrrp_garp_master_delay": {
+          "type": "int",
+          "min": 0,
+          "source": "manual",
+          "description": "MASTER 전환 후 gratuitous ARP 지연(초)."
+        },
+        "vrrp_garp_master_repeat": {
+          "type": "int",
+          "min": 0,
+          "source": "manual",
+          "description": "gratuitous ARP 반복 횟수."
+        },
+        "enable_script_security": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "비루트 소유 스크립트 실행 제한."
+        },
+        "script_user": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "스크립트 실행 사용자."
+        },
+        "max_auto_priority": {
+          "type": "int",
+          "min": -1,
+          "max": 255,
+          "source": "manual",
+          "description": "자동 우선순위 상한."
+        },
+        "bfd_cpu_affinity": {
+          "source": "manual",
+          "conditional": "_WITH_BFD_"
+        },
+        "bfd_no_swap": {
+          "source": "manual",
+          "conditional": "_WITH_BFD_"
+        },
+        "bfd_priority": {
+          "source": "manual",
+          "conditional": "_WITH_BFD_"
+        },
+        "bfd_process_name": {
+          "source": "manual",
+          "conditional": "_WITH_BFD_"
+        },
+        "bfd_rlimit_rtime": {
+          "source": "manual",
+          "conditional": "_WITH_BFD_"
+        },
+        "bfd_rlimit_rttime": {
+          "source": "manual",
+          "conditional": "_WITH_BFD_"
+        },
+        "bfd_rt_priority": {
+          "source": "manual",
+          "conditional": "_WITH_BFD_"
+        },
+        "checker_cpu_affinity": {
+          "source": "manual"
+        },
+        "checker_log_all_failures": {
+          "source": "manual"
+        },
+        "checker_no_swap": {
+          "source": "manual"
+        },
+        "checker_priority": {
+          "source": "manual"
+        },
+        "checker_process_name": {
+          "source": "manual"
+        },
+        "checker_rlimit_rtime": {
+          "source": "manual"
+        },
+        "checker_rlimit_rttime": {
+          "source": "manual"
+        },
+        "checker_rt_priority": {
+          "source": "manual"
+        },
+        "config_save_dir": {
+          "source": "manual"
+        },
+        "data_use_instance": {
+          "source": "manual"
+        },
+        "dbus_no_interface_name": {
+          "source": "manual",
+          "conditional": "_WITH_DBUS_"
+        },
+        "dbus_service_name": {
+          "source": "manual",
+          "conditional": "_WITH_DBUS_"
+        },
+        "default_interface": {
+          "source": "manual"
+        },
+        "disable_local_igmp": {
+          "source": "manual"
+        },
+        "dynamic_interfaces": {
+          "source": "manual"
+        },
+        "enable_dbus": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "conditional": "_WITH_DBUS_",
+          "description": "DBus 인터페이스 활성화."
+        },
+        "enable_snmp_checker": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "conditional": "_WITH_SNMP_CHECKER_",
+          "description": "checker SNMP 활성화."
+        },
+        "enable_snmp_keepalived": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "conditional": "_WITH_SNMP_KEEPALIVED_",
+          "description": "keepalived SNMP 활성화."
+        },
+        "enable_snmp_rfc": {
+          "source": "manual",
+          "conditional": "_WITH_SNMP_"
+        },
+        "enable_snmp_rfcv2": {
+          "source": "manual",
+          "conditional": "_WITH_SNMP_"
+        },
+        "enable_snmp_rfcv3": {
+          "source": "manual",
+          "conditional": "_WITH_SNMP_"
+        },
+        "enable_snmp_vrrp": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "conditional": "_WITH_SNMP_VRRP_",
+          "description": "VRRP SNMP 활성화."
+        },
+        "enable_traps": {
+          "source": "manual"
+        },
+        "fifo_write_vrrp_states_on_reload": {
+          "source": "manual"
+        },
+        "include_check": {
+          "source": "manual"
+        },
+        "iproute_etc_dir": {
+          "source": "manual"
+        },
+        "iproute_usr_dir": {
+          "source": "manual"
+        },
+        "json_dump_file": {
+          "source": "manual"
+        },
+        "json_version": {
+          "source": "manual"
+        },
+        "log_unknown_vrids": {
+          "source": "manual"
+        },
+        "lvs_flush": {
+          "source": "manual"
+        },
+        "lvs_flush_on_stop": {
+          "source": "manual"
+        },
+        "lvs_flush_onstop": {
+          "source": "manual"
+        },
+        "lvs_netlink_cmd_rcv_bufs": {
+          "source": "manual"
+        },
+        "lvs_netlink_cmd_rcv_bufs_force": {
+          "source": "manual"
+        },
+        "lvs_netlink_monitor_rcv_bufs": {
+          "source": "manual"
+        },
+        "lvs_netlink_monitor_rcv_bufs_force": {
+          "source": "manual"
+        },
+        "lvs_notify_fifo": {
+          "source": "manual"
+        },
+        "lvs_process_name": {
+          "source": "manual"
+        },
+        "lvs_sync_daemon": {
+          "source": "manual"
+        },
+        "lvs_timeouts": {
+          "source": "manual"
+        },
+        "min_auto_priority_delay": {
+          "type": "int",
+          "min": 1,
+          "max": 10000000,
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "global_parser.c:412",
+          "description": "자동 우선순위 최소 지연(us)."
+        },
+        "nftables": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "conditional": "_WITH_NFTABLES_",
+          "description": "nftables 테이블 이름."
+        },
+        "nftables_counters": {
+          "source": "manual",
+          "conditional": "_WITH_NFTABLES_"
+        },
+        "nftables_ifindex": {
+          "source": "manual",
+          "conditional": "_WITH_NFTABLES_"
+        },
+        "nftables_ipvs": {
+          "source": "manual",
+          "conditional": "_WITH_NFTABLES_"
+        },
+        "nftables_ipvs_priority": {
+          "source": "manual",
+          "conditional": "_WITH_NFTABLES_"
+        },
+        "nftables_ipvs_start_fwmark": {
+          "source": "manual",
+          "conditional": "_WITH_NFTABLES_"
+        },
+        "nftables_priority": {
+          "source": "manual",
+          "conditional": "_WITH_NFTABLES_"
+        },
+        "no_checker_emails": {
+          "source": "manual"
+        },
+        "no_email_faults": {
+          "source": "manual"
+        },
+        "notify_fifo": {
+          "source": "manual"
+        },
+        "process_monitor_rcv_bufs": {
+          "source": "manual"
+        },
+        "process_monitor_rcv_bufs_force": {
+          "source": "manual"
+        },
+        "process_name": {
+          "source": "manual"
+        },
+        "process_names": {
+          "source": "manual"
+        },
+        "random_seed": {
+          "source": "manual"
+        },
+        "reload_check_config": {
+          "source": "manual"
+        },
+        "reload_file": {
+          "source": "manual"
+        },
+        "reload_repeat": {
+          "source": "manual"
+        },
+        "reload_time_file": {
+          "source": "manual"
+        },
+        "rs_init_notifies": {
+          "source": "manual"
+        },
+        "shutdown_script_timeout": {
+          "source": "manual"
+        },
+        "smtp_alert": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "SMTP 알림 전역 기본값."
+        },
+        "smtp_alert_checker": {
+          "source": "manual"
+        },
+        "smtp_alert_vrrp": {
+          "source": "manual"
+        },
+        "smtp_helo_name": {
+          "source": "manual"
+        },
+        "snmp_rs_stats_update_interval": {
+          "source": "manual",
+          "conditional": "_WITH_SNMP_"
+        },
+        "snmp_socket": {
+          "source": "manual",
+          "conditional": "_WITH_SNMP_"
+        },
+        "snmp_vs_stats_update_interval": {
+          "source": "manual",
+          "conditional": "_WITH_SNMP_"
+        },
+        "startup_script_timeout": {
+          "source": "manual"
+        },
+        "state_dump_file": {
+          "source": "manual"
+        },
+        "stats_dump_file": {
+          "source": "manual"
+        },
+        "tmp_config_directory": {
+          "source": "manual"
+        },
+        "umask": {
+          "source": "manual"
+        },
+        "use_symlink_paths": {
+          "source": "manual"
+        },
+        "v3_checksum_as_v2": {
+          "source": "manual"
+        },
+        "vmac_addr_prefix": {
+          "source": "manual"
+        },
+        "vmac_prefix": {
+          "source": "manual"
+        },
+        "vrrp_check_unicast_src": {
+          "source": "manual"
+        },
+        "vrrp_cpu_affinity": {
+          "source": "manual"
+        },
+        "vrrp_delay_after_boot": {
+          "source": "manual"
+        },
+        "vrrp_down_timer_adverts": {
+          "type": "int",
+          "min": 1,
+          "max": 100,
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "global_parser.c:954",
+          "description": "다운 판정 advert 횟수 (1-100)."
+        },
+        "vrrp_garp_extra_if": {
+          "source": "manual"
+        },
+        "vrrp_garp_interval": {
+          "source": "manual"
+        },
+        "vrrp_garp_lower_prio_delay": {
+          "source": "manual"
+        },
+        "vrrp_garp_lower_prio_repeat": {
+          "source": "manual"
+        },
+        "vrrp_garp_master_refresh": {
+          "source": "manual"
+        },
+        "vrrp_garp_master_refresh_repeat": {
+          "source": "manual"
+        },
+        "vrrp_gna_interval": {
+          "source": "manual"
+        },
+        "vrrp_higher_prio_send_advert": {
+          "source": "manual"
+        },
+        "vrrp_ipsets": {
+          "source": "manual"
+        },
+        "vrrp_iptables": {
+          "source": "manual"
+        },
+        "vrrp_lower_prio_no_advert": {
+          "source": "manual"
+        },
+        "vrrp_mcast_group4": {
+          "source": "manual"
+        },
+        "vrrp_mcast_group6": {
+          "source": "manual"
+        },
+        "vrrp_min_garp": {
+          "source": "manual"
+        },
+        "vrrp_netlink_cmd_rcv_bufs": {
+          "source": "manual"
+        },
+        "vrrp_netlink_cmd_rcv_bufs_force": {
+          "source": "manual"
+        },
+        "vrrp_netlink_monitor_rcv_bufs": {
+          "source": "manual"
+        },
+        "vrrp_netlink_monitor_rcv_bufs_force": {
+          "source": "manual"
+        },
+        "vrrp_no_swap": {
+          "source": "manual"
+        },
+        "vrrp_notify_fifo": {
+          "source": "manual"
+        },
+        "vrrp_notify_priority_changes": {
+          "source": "manual"
+        },
+        "vrrp_owner_ignore_adverts": {
+          "source": "manual"
+        },
+        "vrrp_priority": {
+          "source": "manual"
+        },
+        "vrrp_process_name": {
+          "source": "manual"
+        },
+        "vrrp_rlimit_rtime": {
+          "source": "manual"
+        },
+        "vrrp_rlimit_rttime": {
+          "source": "manual"
+        },
+        "vrrp_rt_priority": {
+          "source": "manual"
+        },
+        "vrrp_rx_bufs_multiplier": {
+          "source": "manual"
+        },
+        "vrrp_rx_bufs_policy": {
+          "source": "manual"
+        },
+        "vrrp_skip_check_adv_addr": {
+          "source": "manual"
+        },
+        "vrrp_startup_delay": {
+          "source": "manual"
+        },
+        "vrrp_strict": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "RFC 엄격 모드."
+        },
+        "vrrp_version": {
+          "type": "int",
+          "min": 2,
+          "max": 3,
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "global_parser.c:1389",
+          "description": "기본 VRRP 버전 (2 또는 3)."
+        },
+        "vrrp_vmac_garp_intvl": {
+          "source": "manual"
+        }
       }
     },
-
     "vrrp_instance": {
       "kind": "block",
       "root": true,
@@ -29,107 +518,424 @@
       "source": "manual",
       "srcRef": "vrrp_parser.c:2326",
       "args": [
-        { "name": "name", "type": "string", "required": true, "defines": "vrrp_instances", "description": "인스턴스 이름." }
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "defines": "vrrp_instances",
+          "description": "인스턴스 이름."
+        }
       ],
-      "subBlocks": ["authentication", "auth_hmac", "track_script", "track_interface", "virtual_ipaddress", "virtual_ipaddress_excluded", "virtual_routes", "virtual_rules"],
+      "subBlocks": [
+        "authentication",
+        "auth_hmac",
+        "track_script",
+        "track_interface",
+        "virtual_ipaddress",
+        "virtual_ipaddress_excluded",
+        "virtual_routes",
+        "virtual_rules",
+        "unicast_peer"
+      ],
       "directives": {
-        "state": { "type": "enum", "values": ["MASTER", "BACKUP"], "maxOccurs": 1, "source": "manual", "srcRef": "vrrp_parser.c:838", "description": "초기 VRRP 상태." },
-        "interface": { "type": "string", "required": true, "maxOccurs": 1, "source": "manual", "description": "VRRP가 동작할 네트워크 인터페이스." },
-        "virtual_router_id": { "type": "int", "min": 1, "max": 255, "required": true, "maxOccurs": 1, "source": "manual", "srcRef": "vrrp_parser.c:1037", "description": "가상 라우터 ID (1-255). 같은 VRID는 같은 그룹." },
-        "priority": { "type": "int", "min": 1, "max": 255, "default": 100, "maxOccurs": 1, "source": "manual", "srcRef": "vrrp_parser.c:1061", "description": "우선순위 (1-255). 높을수록 MASTER 우선. 기본 100." },
-        "advert_int": { "type": "timer", "min": 0, "default": 1, "maxOccurs": 1, "source": "manual", "description": "VRRP advertisement 주기(초)." },
-        "nopreempt": { "type": "bool", "maxOccurs": 1, "source": "manual", "description": "선점 비활성화. 높은 우선순위가 와도 현 MASTER 유지." },
-        "preempt_delay": { "type": "timer", "min": 0, "source": "manual", "description": "선점 지연(초)." },
-        "advertisement_int": { "aliasOf": "advert_int", "source": "manual" },
-        "track_script": { "type": "ref", "refTo": "vrrp_scripts", "source": "manual", "description": "참조할 vrrp_script 이름." },
-        "track_interface": { "type": "string", "source": "manual", "description": "추적할 인터페이스." },
-        "use_vmac": { "type": "bool", "maxOccurs": 1, "source": "manual", "description": "VRRP MAC 주소 사용." },
-        "notify_master": { "type": "string", "source": "manual", "description": "MASTER 전환 시 실행 스크립트." },
-        "notify_backup": { "type": "string", "source": "manual", "description": "BACKUP 전환 시 실행 스크립트." },
-        "notify_fault": { "type": "string", "source": "manual", "description": "FAULT 전환 시 실행 스크립트." }
+        "state": {
+          "type": "enum",
+          "values": [
+            "MASTER",
+            "BACKUP"
+          ],
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "vrrp_parser.c:838",
+          "description": "초기 VRRP 상태."
+        },
+        "interface": {
+          "type": "string",
+          "required": true,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "VRRP가 동작할 네트워크 인터페이스."
+        },
+        "virtual_router_id": {
+          "type": "int",
+          "min": 1,
+          "max": 255,
+          "required": true,
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "vrrp_parser.c:1037",
+          "description": "가상 라우터 ID (1-255). 같은 VRID는 같은 그룹."
+        },
+        "priority": {
+          "type": "int",
+          "min": 1,
+          "max": 255,
+          "default": 100,
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "vrrp_parser.c:1061",
+          "description": "우선순위 (1-255). 높을수록 MASTER 우선. 기본 100."
+        },
+        "advert_int": {
+          "type": "timer",
+          "min": 0,
+          "default": 1,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "VRRP advertisement 주기(초)."
+        },
+        "nopreempt": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "선점 비활성화. 높은 우선순위가 와도 현 MASTER 유지."
+        },
+        "preempt_delay": {
+          "type": "timer",
+          "min": 0,
+          "source": "manual",
+          "description": "선점 지연(초)."
+        },
+        "advertisement_int": {
+          "aliasOf": "advert_int",
+          "source": "manual"
+        },
+        "track_script": {
+          "type": "ref",
+          "refTo": "vrrp_scripts",
+          "source": "manual",
+          "description": "참조할 vrrp_script 이름."
+        },
+        "track_interface": {
+          "type": "string",
+          "source": "manual",
+          "description": "추적할 인터페이스."
+        },
+        "use_vmac": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "VRRP MAC 주소 사용."
+        },
+        "notify_master": {
+          "type": "string",
+          "source": "manual",
+          "description": "MASTER 전환 시 실행 스크립트."
+        },
+        "notify_backup": {
+          "type": "string",
+          "source": "manual",
+          "description": "BACKUP 전환 시 실행 스크립트."
+        },
+        "notify_fault": {
+          "type": "string",
+          "source": "manual",
+          "description": "FAULT 전환 시 실행 스크립트."
+        },
+        "accept": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "VIP 주소로의 패킷 수신 허용."
+        },
+        "authentication": {
+          "source": "manual"
+        },
+        "auth_hmac": {
+          "source": "manual"
+        },
+        "check_unicast_src": {
+          "source": "manual"
+        },
+        "debug": {
+          "source": "manual"
+        },
+        "dont_track_primary": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "primary 인터페이스 추적 안 함."
+        },
+        "down_timer_adverts": {
+          "source": "manual"
+        },
+        "garp_extra_if": {
+          "source": "manual"
+        },
+        "garp_interval": {
+          "source": "manual"
+        },
+        "garp_lower_prio_delay": {
+          "source": "manual"
+        },
+        "garp_lower_prio_repeat": {
+          "source": "manual"
+        },
+        "garp_master_delay": {
+          "source": "manual"
+        },
+        "garp_master_refresh": {
+          "source": "manual"
+        },
+        "garp_master_refresh_repeat": {
+          "source": "manual"
+        },
+        "garp_master_repeat": {
+          "source": "manual"
+        },
+        "higher_prio_send_advert": {
+          "source": "manual"
+        },
+        "kernel_rx_buf_size": {
+          "source": "manual"
+        },
+        "lower_prio_no_advert": {
+          "source": "manual"
+        },
+        "lvs_sync_daemon_interface": {
+          "source": "manual"
+        },
+        "mcast_dst_ip": {
+          "source": "manual"
+        },
+        "mcast_src_ip": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "멀티캐스트 송신 IP."
+        },
+        "native_ipv6": {
+          "source": "manual"
+        },
+        "no_accept": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "VIP 주소로의 패킷 수신 거부."
+        },
+        "notify_priority_changes": {
+          "source": "manual"
+        },
+        "no_virtual_ipaddress": {
+          "source": "manual"
+        },
+        "old_unicast_checksum": {
+          "source": "manual"
+        },
+        "preempt": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "선점 활성화(기본)."
+        },
+        "promote_secondaries": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "secondary 주소 보존."
+        },
+        "skip_check_adv_addr": {
+          "source": "manual"
+        },
+        "smtp_alert": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "이 인스턴스 SMTP 알림."
+        },
+        "strict_mode": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "RFC 엄격 모드."
+        },
+        "track_bfd": {
+          "source": "manual"
+        },
+        "track_file": {
+          "type": "ref",
+          "refTo": "track_files",
+          "source": "manual",
+          "description": "참조할 track_file."
+        },
+        "track_process": {
+          "source": "manual"
+        },
+        "track_src_ip": {
+          "source": "manual"
+        },
+        "unicast_fault_no_peer": {
+          "source": "manual"
+        },
+        "unicast_peer": {
+          "source": "manual"
+        },
+        "unicast_src_ip": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "유니캐스트 송신 IP."
+        },
+        "unicast_ttl": {
+          "source": "manual"
+        },
+        "use_ipvlan": {
+          "source": "manual"
+        },
+        "use_vmac_addr": {
+          "source": "manual"
+        },
+        "v3_checksum_as_v2": {
+          "source": "manual"
+        },
+        "version": {
+          "type": "int",
+          "min": 2,
+          "max": 3,
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "vrrp_parser.c:2364",
+          "description": "VRRP 버전 (2 또는 3)."
+        },
+        "virtual_ipaddress": {
+          "source": "manual"
+        },
+        "virtual_ipaddress_excluded": {
+          "source": "manual"
+        },
+        "virtual_routes": {
+          "source": "manual"
+        },
+        "virtual_rules": {
+          "source": "manual"
+        },
+        "vmac_garp_intvl": {
+          "source": "manual"
+        },
+        "vmac_xmit_base": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "conditional": "_HAVE_VRRP_VMAC_",
+          "description": "VMAC 송신을 base 인터페이스로."
+        },
+        "vrf": {
+          "source": "manual"
+        },
+        "notify_stop": {
+          "source": "manual"
+        },
+        "notify_deleted": {
+          "source": "manual"
+        },
+        "notify": {
+          "source": "manual"
+        }
       }
     },
-
     "authentication": {
       "kind": "block",
       "root": false,
       "complete": true,
-      "validParents": ["vrrp_instance"],
+      "validParents": [
+        "vrrp_instance"
+      ],
       "description": "VRRP 인증 설정.",
       "source": "manual",
       "srcRef": "vrrp_parser.c:2418",
       "directives": {
-        "auth_type": { "type": "enum", "values": ["PASS", "AH"], "maxOccurs": 1, "source": "manual", "srcRef": "vrrp_parser.c:1487", "description": "인증 방식. PASS=평문, AH=IPSec-AH." },
-        "auth_pass": { "type": "string", "maxOccurs": 1, "source": "manual", "description": "인증 암호 (최대 8자)." }
+        "auth_type": {
+          "type": "enum",
+          "values": [
+            "PASS",
+            "AH"
+          ],
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "vrrp_parser.c:1487",
+          "description": "인증 방식. PASS=평문, AH=IPSec-AH."
+        },
+        "auth_pass": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "인증 암호 (최대 8자)."
+        }
       }
     },
-
     "track_script": {
       "kind": "block",
       "root": false,
       "freeform": true,
-      "validParents": ["vrrp_instance"],
+      "validParents": [
+        "vrrp_instance"
+      ],
       "description": "추적 스크립트 목록 블록. 본문에 vrrp_script 이름을 나열.",
       "source": "manual",
       "srcRef": "vrrp_parser.c:2350"
     },
-
     "track_interface": {
       "kind": "block",
       "root": false,
       "freeform": true,
-      "validParents": ["vrrp_instance"],
+      "validParents": [
+        "vrrp_instance"
+      ],
       "description": "추적 인터페이스 목록 블록. 본문에 인터페이스명(+가중치)을 나열.",
       "source": "manual",
       "srcRef": "vrrp_parser.c:2349"
     },
-
     "virtual_ipaddress": {
       "kind": "block",
       "root": false,
       "freeform": true,
-      "validParents": ["vrrp_instance"],
+      "validParents": [
+        "vrrp_instance"
+      ],
       "description": "VRRP가 관리하는 가상 IP 주소 목록 (VIP). 본문에 IP[/prefix] [dev ...] 나열.",
       "source": "manual",
       "srcRef": "vrrp_parser.c"
     },
-
     "virtual_ipaddress_excluded": {
       "kind": "block",
       "root": false,
       "freeform": true,
-      "validParents": ["vrrp_instance"],
+      "validParents": [
+        "vrrp_instance"
+      ],
       "description": "advertisement 에서 제외할 VIP 목록.",
       "source": "manual"
     },
-
     "virtual_routes": {
       "kind": "block",
       "root": false,
       "freeform": true,
-      "validParents": ["vrrp_instance"],
+      "validParents": [
+        "vrrp_instance"
+      ],
       "description": "MASTER 전환 시 설정할 정적 경로 목록.",
       "source": "manual"
     },
-
     "virtual_rules": {
       "kind": "block",
       "root": false,
       "freeform": true,
-      "validParents": ["vrrp_instance"],
+      "validParents": [
+        "vrrp_instance"
+      ],
       "description": "MASTER 전환 시 설정할 정책 라우팅 규칙 목록.",
       "source": "manual"
     },
-
     "notification_email": {
       "kind": "block",
       "root": false,
       "freeform": true,
-      "validParents": ["global_defs"],
+      "validParents": [
+        "global_defs"
+      ],
       "description": "알림 수신 이메일 주소 목록 블록.",
       "source": "manual"
     },
-
     "vrrp_sync_group": {
       "kind": "block",
       "root": true,
@@ -137,16 +943,73 @@
       "source": "manual",
       "srcRef": "vrrp_parser.c:2290",
       "args": [
-        { "name": "name", "type": "string", "required": true, "defines": "vrrp_sync_groups", "description": "그룹 이름." }
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "defines": "vrrp_sync_groups",
+          "description": "그룹 이름."
+        }
       ],
       "directives": {
-        "group": { "type": "string", "source": "manual", "description": "그룹에 포함할 vrrp_instance 이름 목록." },
-        "notify_master": { "type": "string", "source": "manual", "description": "그룹 MASTER 전환 스크립트." },
-        "notify_backup": { "type": "string", "source": "manual", "description": "그룹 BACKUP 전환 스크립트." },
-        "notify_fault": { "type": "string", "source": "manual", "description": "그룹 FAULT 전환 스크립트." }
+        "group": {
+          "type": "string",
+          "source": "manual",
+          "description": "그룹에 포함할 vrrp_instance 이름 목록."
+        },
+        "notify_master": {
+          "type": "string",
+          "source": "manual",
+          "description": "그룹 MASTER 전환 스크립트."
+        },
+        "notify_backup": {
+          "type": "string",
+          "source": "manual",
+          "description": "그룹 BACKUP 전환 스크립트."
+        },
+        "notify_fault": {
+          "type": "string",
+          "source": "manual",
+          "description": "그룹 FAULT 전환 스크립트."
+        },
+        "track_interface": {
+          "source": "manual"
+        },
+        "track_script": {
+          "source": "manual"
+        },
+        "track_file": {
+          "source": "manual"
+        },
+        "track_process": {
+          "source": "manual"
+        },
+        "track_bfd": {
+          "source": "manual"
+        },
+        "global_tracking": {
+          "source": "manual"
+        },
+        "sync_group_tracking_weight": {
+          "source": "manual"
+        },
+        "smtp_alert": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "그룹 SMTP 알림."
+        },
+        "notify_stop": {
+          "source": "manual"
+        },
+        "notify_deleted": {
+          "source": "manual"
+        },
+        "notify": {
+          "source": "manual"
+        }
       }
     },
-
     "vrrp_script": {
       "kind": "block",
       "root": true,
@@ -154,20 +1017,78 @@
       "source": "manual",
       "srcRef": "vrrp_parser.c:2432",
       "args": [
-        { "name": "name", "type": "string", "required": true, "defines": "vrrp_scripts", "description": "스크립트 이름." }
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "defines": "vrrp_scripts",
+          "description": "스크립트 이름."
+        }
       ],
       "directives": {
-        "script": { "type": "string", "required": true, "maxOccurs": 1, "source": "manual", "srcRef": "vrrp_parser.c:2433", "description": "실행할 명령." },
-        "interval": { "type": "timer", "min": 0, "maxOccurs": 1, "source": "manual", "srcRef": "vrrp_parser.c:2434", "description": "실행 주기(초)." },
-        "timeout": { "type": "timer", "min": 0, "maxOccurs": 1, "source": "manual", "srcRef": "vrrp_parser.c:2435", "description": "실행 타임아웃(초)." },
-        "weight": { "type": "int", "min": -254, "max": 254, "maxOccurs": 1, "source": "manual", "srcRef": "vrrp_parser.c:2436", "description": "성공/실패 시 우선순위 가감치." },
-        "rise": { "type": "int", "min": 1, "maxOccurs": 1, "source": "manual", "srcRef": "vrrp_parser.c:2437", "description": "성공 판정에 필요한 연속 성공 횟수." },
-        "fall": { "type": "int", "min": 1, "maxOccurs": 1, "source": "manual", "srcRef": "vrrp_parser.c:2438", "description": "실패 판정에 필요한 연속 실패 횟수." },
-        "user": { "type": "string", "maxOccurs": 1, "source": "manual", "description": "스크립트 실행 사용자." },
-        "init_fail": { "type": "bool", "maxOccurs": 1, "source": "manual", "description": "초기 상태를 실패로 가정." }
+        "script": {
+          "type": "string",
+          "required": true,
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "vrrp_parser.c:2433",
+          "description": "실행할 명령."
+        },
+        "interval": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "vrrp_parser.c:2434",
+          "description": "실행 주기(초)."
+        },
+        "timeout": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "vrrp_parser.c:2435",
+          "description": "실행 타임아웃(초)."
+        },
+        "weight": {
+          "type": "int",
+          "min": -254,
+          "max": 254,
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "vrrp_parser.c:2436",
+          "description": "성공/실패 시 우선순위 가감치."
+        },
+        "rise": {
+          "type": "int",
+          "min": 1,
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "vrrp_parser.c:2437",
+          "description": "성공 판정에 필요한 연속 성공 횟수."
+        },
+        "fall": {
+          "type": "int",
+          "min": 1,
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "vrrp_parser.c:2438",
+          "description": "실패 판정에 필요한 연속 실패 횟수."
+        },
+        "user": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "스크립트 실행 사용자."
+        },
+        "init_fail": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "초기 상태를 실패로 가정."
+        }
       }
     },
-
     "virtual_server": {
       "kind": "block",
       "root": true,
@@ -175,129 +1096,906 @@
       "source": "manual",
       "srcRef": "check_parser.c:951",
       "args": [
-        { "name": "ip", "type": "ip", "required": true, "description": "가상 서버 IP (또는 fwmark/group)." },
-        { "name": "port", "type": "port", "required": false, "description": "가상 서버 포트." }
+        {
+          "name": "ip",
+          "type": "ip",
+          "required": true,
+          "description": "가상 서버 IP (또는 fwmark/group)."
+        },
+        {
+          "name": "port",
+          "type": "port",
+          "required": false,
+          "description": "가상 서버 포트."
+        }
       ],
-      "argKeywords": ["fwmark", "group"],
-      "subBlocks": ["real_server", "SSL"],
+      "argKeywords": [
+        "fwmark",
+        "group"
+      ],
+      "subBlocks": [
+        "real_server",
+        "SSL"
+      ],
       "directives": {
-        "lvs_sched": { "type": "enum", "values": ["rr", "wrr", "lc", "wlc", "lblc", "sh", "mh", "dh", "fo", "ovf", "lblcr", "sed", "nq", "twos"], "maxOccurs": 1, "source": "manual", "srcRef": "check_parser.c:53", "description": "스케줄링 알고리즘." },
-        "lb_algo": { "aliasOf": "lvs_sched", "source": "manual" },
-        "lvs_method": { "type": "enum", "values": ["NAT", "DR", "TUN"], "maxOccurs": 1, "source": "manual", "srcRef": "check_parser.c:376", "description": "패킷 전달 방식." },
-        "lb_kind": { "aliasOf": "lvs_method", "source": "manual" },
-        "protocol": { "type": "enum", "values": ["TCP", "UDP", "SCTP"], "caseInsensitive": true, "maxOccurs": 1, "source": "manual", "srcRef": "check_parser.c:574", "description": "전송 프로토콜." },
-        "persistence_timeout": { "type": "int", "min": 0, "maxOccurs": 1, "source": "manual", "description": "세션 지속(persistence) 타임아웃(초)." },
-        "persistence_granularity": { "type": "ip", "maxOccurs": 1, "source": "manual", "description": "persistence 넷마스크." },
-        "delay_loop": { "type": "timer", "min": 0, "maxOccurs": 1, "source": "manual", "description": "헬스체크 주기(초)." },
-        "virtualhost": { "type": "string", "maxOccurs": 1, "source": "manual", "description": "HTTP 헬스체크 Host 헤더." },
-        "quorum": { "type": "int", "min": 1, "maxOccurs": 1, "source": "manual", "description": "서비스 유지에 필요한 최소 가용 real_server 가중치 합." },
-        "sorry_server": { "type": "ip", "maxOccurs": 1, "source": "manual", "description": "모든 real_server 다운 시 대체 서버." }
+        "lvs_sched": {
+          "type": "enum",
+          "values": [
+            "rr",
+            "wrr",
+            "lc",
+            "wlc",
+            "lblc",
+            "sh",
+            "mh",
+            "dh",
+            "fo",
+            "ovf",
+            "lblcr",
+            "sed",
+            "nq",
+            "twos"
+          ],
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "check_parser.c:53",
+          "description": "스케줄링 알고리즘."
+        },
+        "lb_algo": {
+          "aliasOf": "lvs_sched",
+          "source": "manual"
+        },
+        "lvs_method": {
+          "type": "enum",
+          "values": [
+            "NAT",
+            "DR",
+            "TUN"
+          ],
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "check_parser.c:376",
+          "description": "패킷 전달 방식."
+        },
+        "lb_kind": {
+          "aliasOf": "lvs_method",
+          "source": "manual"
+        },
+        "protocol": {
+          "type": "enum",
+          "values": [
+            "TCP",
+            "UDP",
+            "SCTP"
+          ],
+          "caseInsensitive": true,
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "check_parser.c:574",
+          "description": "전송 프로토콜."
+        },
+        "persistence_timeout": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "세션 지속(persistence) 타임아웃(초)."
+        },
+        "persistence_granularity": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "persistence 넷마스크."
+        },
+        "delay_loop": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "헬스체크 주기(초)."
+        },
+        "virtualhost": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "HTTP 헬스체크 Host 헤더."
+        },
+        "quorum": {
+          "type": "int",
+          "min": 1,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "서비스 유지에 필요한 최소 가용 real_server 가중치 합."
+        },
+        "sorry_server": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "모든 real_server 다운 시 대체 서버."
+        },
+        "alpha": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "alpha 모드(시작 시 down 가정)."
+        },
+        "omega": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "omega 모드."
+        },
+        "ha_suspend": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "VS 다운 시 헬스체크 일시중지."
+        },
+        "hysteresis": {
+          "source": "manual"
+        },
+        "ip_family": {
+          "type": "enum",
+          "values": [
+            "inet",
+            "inet6"
+          ],
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "주소 패밀리."
+        },
+        "persistence_engine": {
+          "source": "manual"
+        },
+        "quorum_max": {
+          "source": "manual"
+        },
+        "retry": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "헬스체크 재시도."
+        },
+        "delay_before_retry": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 전 지연(초)."
+        },
+        "warmup": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "워밍업 지연(초)."
+        },
+        "connect_timeout": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 타임아웃(초)."
+        },
+        "smtp_alert": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "이 VS SMTP 알림."
+        },
+        "sorry_server_inhibit": {
+          "source": "manual"
+        },
+        "sorry_server_lvs_method": {
+          "source": "manual"
+        },
+        "snmp_name": {
+          "source": "manual"
+        },
+        "hashed": {
+          "source": "manual"
+        },
+        "ops": {
+          "source": "manual"
+        },
+        "mh-fallback": {
+          "source": "manual"
+        },
+        "mh-port": {
+          "source": "manual"
+        },
+        "sh-fallback": {
+          "source": "manual"
+        },
+        "sh-port": {
+          "source": "manual"
+        },
+        "flag-1": {
+          "source": "manual"
+        },
+        "flag-2": {
+          "source": "manual"
+        },
+        "flag-3": {
+          "source": "manual"
+        }
       }
     },
-
     "real_server": {
       "kind": "block",
       "root": false,
-      "validParents": ["virtual_server"],
+      "validParents": [
+        "virtual_server"
+      ],
       "description": "실제 백엔드 서버. 헬스체크 블록을 포함.",
       "source": "manual",
       "srcRef": "check_parser.c:1001",
       "args": [
-        { "name": "ip", "type": "ip", "required": true, "description": "real server IP." },
-        { "name": "port", "type": "port", "required": false, "description": "real server 포트." }
+        {
+          "name": "ip",
+          "type": "ip",
+          "required": true,
+          "description": "real server IP."
+        },
+        {
+          "name": "port",
+          "type": "port",
+          "required": false,
+          "description": "real server 포트."
+        }
       ],
-      "subBlocks": ["TCP_CHECK", "HTTP_GET", "SSL_GET", "MISC_CHECK", "DNS_CHECK", "SMTP_CHECK", "PING_CHECK", "UDP_CHECK", "FILE_CHECK", "BFD_CHECK"],
+      "subBlocks": [
+        "TCP_CHECK",
+        "HTTP_GET",
+        "SSL_GET",
+        "MISC_CHECK",
+        "DNS_CHECK",
+        "SMTP_CHECK",
+        "PING_CHECK",
+        "UDP_CHECK",
+        "FILE_CHECK",
+        "BFD_CHECK"
+      ],
       "directives": {
-        "weight": { "type": "int", "min": 0, "maxOccurs": 1, "source": "manual", "srcRef": "check_parser.c:1002", "description": "부하 가중치." },
-        "inhibit_on_failure": { "type": "bool", "maxOccurs": 1, "source": "manual", "description": "실패 시 가중치를 0으로." },
-        "uthreshold": { "type": "int", "min": 0, "maxOccurs": 1, "source": "manual", "description": "연결 상한 임계치." },
-        "lthreshold": { "type": "int", "min": 0, "maxOccurs": 1, "source": "manual", "description": "연결 하한 임계치." },
-        "notify_up": { "type": "string", "source": "manual", "description": "서버 up 시 실행 스크립트." },
-        "notify_down": { "type": "string", "source": "manual", "description": "서버 down 시 실행 스크립트." }
+        "weight": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "check_parser.c:1002",
+          "description": "부하 가중치."
+        },
+        "inhibit_on_failure": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "실패 시 가중치를 0으로."
+        },
+        "uthreshold": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 상한 임계치."
+        },
+        "lthreshold": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 하한 임계치."
+        },
+        "notify_up": {
+          "type": "string",
+          "source": "manual",
+          "description": "서버 up 시 실행 스크립트."
+        },
+        "notify_down": {
+          "type": "string",
+          "source": "manual",
+          "description": "서버 down 시 실행 스크립트."
+        },
+        "alpha": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "alpha 모드."
+        },
+        "retry": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "헬스체크 재시도."
+        },
+        "delay_before_retry": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 전 지연(초)."
+        },
+        "warmup": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "워밍업 지연(초)."
+        },
+        "connect_timeout": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 타임아웃(초)."
+        },
+        "delay_loop": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "헬스체크 주기(초)."
+        },
+        "smtp_alert": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "이 서버 SMTP 알림."
+        },
+        "virtualhost": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "HTTP 헬스체크 Host."
+        },
+        "lvs_method": {
+          "type": "enum",
+          "values": [
+            "NAT",
+            "DR",
+            "TUN"
+          ],
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "이 서버 전달 방식."
+        },
+        "snmp_name": {
+          "source": "manual"
+        }
       }
     },
-
     "TCP_CHECK": {
       "kind": "block",
       "root": false,
-      "validParents": ["real_server"],
+      "validParents": [
+        "real_server"
+      ],
       "description": "TCP 연결 헬스체크.",
       "source": "manual",
       "srcRef": "check_tcp.c:84",
       "directives": {
-        "connect_port": { "type": "port", "maxOccurs": 1, "source": "manual", "srcRef": "check_api.c:245", "description": "연결 포트." },
-        "connect_timeout": { "type": "timer", "min": 0, "maxOccurs": 1, "source": "manual", "srcRef": "check_api.c:304", "description": "연결 타임아웃(초)." },
-        "connect_ip": { "type": "ip", "maxOccurs": 1, "source": "manual", "description": "연결 대상 IP." },
-        "bindto": { "type": "ip", "maxOccurs": 1, "source": "manual", "description": "송신 바인드 IP." },
-        "retry": { "type": "int", "min": 0, "maxOccurs": 1, "source": "manual", "description": "재시도 횟수." },
-        "delay_before_retry": { "type": "timer", "min": 0, "maxOccurs": 1, "source": "manual", "description": "재시도 전 지연(초)." },
-        "warmup": { "type": "timer", "min": 0, "maxOccurs": 1, "source": "manual", "description": "워밍업 지연(초)." }
+        "connect_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "check_api.c:245",
+          "description": "연결 포트."
+        },
+        "connect_timeout": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "check_api.c:304",
+          "description": "연결 타임아웃(초)."
+        },
+        "connect_ip": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 대상 IP."
+        },
+        "bindto": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 IP."
+        },
+        "retry": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 횟수."
+        },
+        "delay_before_retry": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 전 지연(초)."
+        },
+        "warmup": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "워밍업 지연(초)."
+        },
+        "bind_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 포트."
+        },
+        "bind_if": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 인터페이스."
+        },
+        "fwmark": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "방화벽 마크."
+        },
+        "delay_loop": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "헬스체크 주기(초)."
+        },
+        "alpha": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "alpha 모드."
+        },
+        "log_all_failures": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "모든 실패 로깅."
+        }
       }
     },
-
     "HTTP_GET": {
       "kind": "block",
       "root": false,
-      "validParents": ["real_server"],
+      "validParents": [
+        "real_server"
+      ],
       "description": "HTTP GET 헬스체크. url 하위 블록 포함.",
       "source": "manual",
       "srcRef": "check_http.c:986",
-      "subBlocks": ["url"],
+      "subBlocks": [
+        "url"
+      ],
       "directives": {
-        "connect_port": { "type": "port", "maxOccurs": 1, "source": "manual", "description": "연결 포트." },
-        "connect_timeout": { "type": "timer", "min": 0, "maxOccurs": 1, "source": "manual", "description": "연결 타임아웃(초)." },
-        "connect_ip": { "type": "ip", "maxOccurs": 1, "source": "manual", "description": "연결 대상 IP." },
-        "bindto": { "type": "ip", "maxOccurs": 1, "source": "manual", "description": "송신 바인드 IP." },
-        "retry": { "type": "int", "min": 0, "maxOccurs": 1, "source": "manual", "description": "재시도 횟수." },
-        "delay_before_retry": { "type": "timer", "min": 0, "maxOccurs": 1, "source": "manual", "description": "재시도 전 지연(초)." },
-        "nb_get_retry": { "type": "int", "min": 0, "maxOccurs": 1, "source": "manual", "deprecated": true, "description": "(deprecated) retry 사용." }
+        "connect_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 포트."
+        },
+        "connect_timeout": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 타임아웃(초)."
+        },
+        "connect_ip": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 대상 IP."
+        },
+        "bindto": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 IP."
+        },
+        "retry": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 횟수."
+        },
+        "delay_before_retry": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 전 지연(초)."
+        },
+        "nb_get_retry": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "deprecated": true,
+          "description": "(deprecated) retry 사용."
+        },
+        "bind_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 포트."
+        },
+        "bind_if": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 인터페이스."
+        },
+        "fwmark": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "방화벽 마크."
+        },
+        "warmup": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "워밍업 지연(초)."
+        },
+        "delay_loop": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "헬스체크 주기(초)."
+        },
+        "alpha": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "alpha 모드."
+        },
+        "log_all_failures": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "모든 실패 로깅."
+        },
+        "http_protocol": {
+          "source": "manual"
+        },
+        "virtualhost": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "Host 헤더."
+        },
+        "enable_sni": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "SNI 활성화."
+        },
+        "fast_recovery": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "빠른 복구."
+        }
       }
     },
-
     "SSL_GET": {
       "kind": "block",
       "root": false,
-      "validParents": ["real_server"],
+      "validParents": [
+        "real_server"
+      ],
       "description": "HTTPS GET 헬스체크. HTTP_GET와 동일 구조에 SSL 사용.",
       "source": "manual",
       "srcRef": "check_http.c:992",
-      "subBlocks": ["url"],
+      "subBlocks": [
+        "url"
+      ],
       "directives": {
-        "connect_port": { "type": "port", "maxOccurs": 1, "source": "manual", "description": "연결 포트." },
-        "connect_timeout": { "type": "timer", "min": 0, "maxOccurs": 1, "source": "manual", "description": "연결 타임아웃(초)." },
-        "retry": { "type": "int", "min": 0, "maxOccurs": 1, "source": "manual", "description": "재시도 횟수." },
-        "delay_before_retry": { "type": "timer", "min": 0, "maxOccurs": 1, "source": "manual", "description": "재시도 전 지연(초)." }
+        "connect_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 포트."
+        },
+        "connect_timeout": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 타임아웃(초)."
+        },
+        "retry": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 횟수."
+        },
+        "delay_before_retry": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 전 지연(초)."
+        },
+        "connect_ip": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "check_api.c",
+          "description": "연결 대상 IP."
+        },
+        "bindto": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 IP."
+        },
+        "bind_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 포트."
+        },
+        "bind_if": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 인터페이스."
+        },
+        "fwmark": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "방화벽 마크."
+        },
+        "warmup": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "워밍업 지연(초)."
+        },
+        "delay_loop": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "헬스체크 주기(초)."
+        },
+        "alpha": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "alpha 모드."
+        },
+        "log_all_failures": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "모든 실패 로깅."
+        },
+        "http_protocol": {
+          "source": "manual"
+        },
+        "fast_recovery": {
+          "source": "manual"
+        },
+        "virtualhost": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "Host 헤더."
+        },
+        "enable_sni": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "SNI 활성화."
+        },
+        "tls_compliant": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "TLS 호환 모드."
+        }
       }
     },
-
     "url": {
       "kind": "block",
       "root": false,
-      "validParents": ["HTTP_GET", "SSL_GET"],
+      "validParents": [
+        "HTTP_GET",
+        "SSL_GET"
+      ],
       "description": "HTTP(S) 헬스체크 대상 URL. (최대 중첩 깊이 3)",
       "source": "manual",
       "srcRef": "check_http.c:539",
       "directives": {
-        "path": { "type": "string", "maxOccurs": 1, "source": "manual", "srcRef": "check_http.c:539", "description": "요청 경로." },
-        "digest": { "type": "string", "maxOccurs": 1, "source": "manual", "description": "응답 본문 MD5 다이제스트." },
-        "status_code": { "type": "int", "min": 100, "max": 599, "source": "manual", "srcRef": "check_http.c:583", "description": "정상으로 간주할 HTTP 상태 코드." }
+        "path": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "check_http.c:539",
+          "description": "요청 경로."
+        },
+        "digest": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "응답 본문 MD5 다이제스트."
+        },
+        "status_code": {
+          "type": "int",
+          "min": 100,
+          "max": 599,
+          "source": "manual",
+          "srcRef": "check_http.c:583",
+          "description": "정상으로 간주할 HTTP 상태 코드."
+        },
+        "regex": {
+          "source": "manual"
+        },
+        "regex_no_match": {
+          "source": "manual"
+        },
+        "regex_options": {
+          "source": "manual"
+        },
+        "regex_min_offset": {
+          "source": "manual"
+        },
+        "regex_max_offset": {
+          "source": "manual"
+        },
+        "regex_stack": {
+          "source": "manual"
+        },
+        "virtualhost": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "URL별 Host 헤더."
+        }
       }
     },
-
     "MISC_CHECK": {
       "kind": "block",
       "root": false,
-      "validParents": ["real_server"],
+      "validParents": [
+        "real_server"
+      ],
       "description": "외부 스크립트 기반 헬스체크.",
       "source": "manual",
       "srcRef": "check_misc.c:205",
       "directives": {
-        "misc_path": { "type": "string", "required": true, "maxOccurs": 1, "source": "manual", "description": "실행할 검사 스크립트." },
-        "misc_timeout": { "type": "timer", "min": 0, "maxOccurs": 1, "source": "manual", "description": "스크립트 타임아웃(초)." },
-        "misc_dynamic": { "type": "bool", "maxOccurs": 1, "source": "manual", "description": "스크립트 종료코드로 가중치 동적 조정." }
+        "misc_path": {
+          "type": "string",
+          "required": true,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "실행할 검사 스크립트."
+        },
+        "misc_timeout": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "스크립트 타임아웃(초)."
+        },
+        "misc_dynamic": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "스크립트 종료코드로 가중치 동적 조정."
+        },
+        "connect_ip": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "check_api.c",
+          "description": "연결 대상 IP."
+        },
+        "connect_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 포트."
+        },
+        "bindto": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 IP."
+        },
+        "bind_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 포트."
+        },
+        "bind_if": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 인터페이스."
+        },
+        "connect_timeout": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 타임아웃(초)."
+        },
+        "fwmark": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "방화벽 마크."
+        },
+        "retry": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 횟수."
+        },
+        "delay_before_retry": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 전 지연(초)."
+        },
+        "warmup": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "워밍업 지연(초)."
+        },
+        "delay_loop": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "헬스체크 주기(초)."
+        },
+        "alpha": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "alpha 모드."
+        },
+        "log_all_failures": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "모든 실패 로깅."
+        },
+        "user": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "스크립트 실행 사용자."
+        }
       }
     },
-
     "virtual_server_group": {
       "kind": "block",
       "root": true,
@@ -305,10 +2003,15 @@
       "source": "manual",
       "srcRef": "check_parser.c:950",
       "args": [
-        { "name": "name", "type": "string", "required": true, "defines": "virtual_server_groups", "description": "그룹 이름." }
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "defines": "virtual_server_groups",
+          "description": "그룹 이름."
+        }
       ]
     },
-
     "track_file": {
       "kind": "block",
       "root": true,
@@ -316,14 +2019,32 @@
       "source": "manual",
       "srcRef": "track_file.c:538",
       "args": [
-        { "name": "name", "type": "string", "required": true, "defines": "track_files", "description": "track file 이름." }
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "defines": "track_files",
+          "description": "track file 이름."
+        }
       ],
       "directives": {
-        "file": { "type": "string", "required": true, "maxOccurs": 1, "source": "manual", "description": "추적할 파일 경로." },
-        "weight": { "type": "int", "min": -254, "max": 254, "maxOccurs": 1, "source": "manual", "description": "파일 값에 곱할 가중치." }
+        "file": {
+          "type": "string",
+          "required": true,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "추적할 파일 경로."
+        },
+        "weight": {
+          "type": "int",
+          "min": -254,
+          "max": 254,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "파일 값에 곱할 가중치."
+        }
       }
     },
-
     "vrrp_track_file": {
       "kind": "block",
       "root": true,
@@ -332,6 +2053,999 @@
       "description": "(deprecated) track_file 동의어.",
       "source": "manual",
       "srcRef": "track_file.c:545"
+    },
+    "auth_hmac": {
+      "kind": "block",
+      "root": false,
+      "complete": true,
+      "validParents": [
+        "vrrp_instance"
+      ],
+      "description": "HMAC 인증 설정 (VRRP).",
+      "source": "manual",
+      "srcRef": "vrrp_parser.c:2422",
+      "directives": {
+        "key": {
+          "type": "string",
+          "source": "manual",
+          "description": "HMAC 키."
+        },
+        "active_key": {
+          "type": "int",
+          "source": "manual",
+          "description": "활성 키 ID."
+        },
+        "time_window": {
+          "type": "int",
+          "source": "manual",
+          "description": "시간 윈도(초)."
+        },
+        "anti_replay": {
+          "type": "bool",
+          "source": "manual",
+          "description": "재전송 공격 방지."
+        },
+        "mode": {
+          "type": "string",
+          "source": "manual",
+          "description": "HMAC 모드."
+        }
+      }
+    },
+    "SMTP_CHECK": {
+      "kind": "block",
+      "root": false,
+      "validParents": [
+        "real_server"
+      ],
+      "description": "SMTP_CHECK 헬스체크.",
+      "source": "manual",
+      "srcRef": "check_smtp.c:296",
+      "directives": {
+        "connect_ip": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "check_api.c",
+          "description": "연결 대상 IP."
+        },
+        "connect_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 포트."
+        },
+        "bindto": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 IP."
+        },
+        "bind_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 포트."
+        },
+        "bind_if": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 인터페이스."
+        },
+        "connect_timeout": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 타임아웃(초)."
+        },
+        "fwmark": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "방화벽 마크."
+        },
+        "retry": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 횟수."
+        },
+        "delay_before_retry": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 전 지연(초)."
+        },
+        "warmup": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "워밍업 지연(초)."
+        },
+        "delay_loop": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "헬스체크 주기(초)."
+        },
+        "alpha": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "alpha 모드."
+        },
+        "log_all_failures": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "모든 실패 로깅."
+        },
+        "helo_name": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "HELO 이름."
+        },
+        "host": {
+          "source": "manual"
+        }
+      },
+      "subBlocks": [
+        "host"
+      ]
+    },
+    "DNS_CHECK": {
+      "kind": "block",
+      "root": false,
+      "validParents": [
+        "real_server"
+      ],
+      "description": "DNS_CHECK 헬스체크.",
+      "source": "manual",
+      "srcRef": "check_dns.c:551",
+      "directives": {
+        "connect_ip": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "check_api.c",
+          "description": "연결 대상 IP."
+        },
+        "connect_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 포트."
+        },
+        "bindto": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 IP."
+        },
+        "bind_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 포트."
+        },
+        "bind_if": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 인터페이스."
+        },
+        "connect_timeout": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 타임아웃(초)."
+        },
+        "fwmark": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "방화벽 마크."
+        },
+        "retry": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 횟수."
+        },
+        "delay_before_retry": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 전 지연(초)."
+        },
+        "warmup": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "워밍업 지연(초)."
+        },
+        "delay_loop": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "헬스체크 주기(초)."
+        },
+        "alpha": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "alpha 모드."
+        },
+        "log_all_failures": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "모든 실패 로깅."
+        },
+        "type": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "DNS 레코드 타입(A/SOA 등)."
+        },
+        "name": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "조회 이름."
+        }
+      }
+    },
+    "PING_CHECK": {
+      "kind": "block",
+      "root": false,
+      "validParents": [
+        "real_server"
+      ],
+      "description": "PING_CHECK 헬스체크.",
+      "source": "manual",
+      "srcRef": "check_ping.c:174",
+      "directives": {
+        "connect_ip": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "check_api.c",
+          "description": "연결 대상 IP."
+        },
+        "connect_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 포트."
+        },
+        "bindto": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 IP."
+        },
+        "bind_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 포트."
+        },
+        "bind_if": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 인터페이스."
+        },
+        "connect_timeout": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 타임아웃(초)."
+        },
+        "fwmark": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "방화벽 마크."
+        },
+        "retry": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 횟수."
+        },
+        "delay_before_retry": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 전 지연(초)."
+        },
+        "warmup": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "워밍업 지연(초)."
+        },
+        "delay_loop": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "헬스체크 주기(초)."
+        },
+        "alpha": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "alpha 모드."
+        },
+        "log_all_failures": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "모든 실패 로깅."
+        }
+      }
+    },
+    "UDP_CHECK": {
+      "kind": "block",
+      "root": false,
+      "validParents": [
+        "real_server"
+      ],
+      "description": "UDP_CHECK 헬스체크.",
+      "source": "manual",
+      "srcRef": "check_udp.c:190",
+      "directives": {
+        "connect_ip": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "check_api.c",
+          "description": "연결 대상 IP."
+        },
+        "connect_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 포트."
+        },
+        "bindto": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 IP."
+        },
+        "bind_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 포트."
+        },
+        "bind_if": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 인터페이스."
+        },
+        "connect_timeout": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 타임아웃(초)."
+        },
+        "fwmark": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "방화벽 마크."
+        },
+        "retry": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 횟수."
+        },
+        "delay_before_retry": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 전 지연(초)."
+        },
+        "warmup": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "워밍업 지연(초)."
+        },
+        "delay_loop": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "헬스체크 주기(초)."
+        },
+        "alpha": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "alpha 모드."
+        },
+        "log_all_failures": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "모든 실패 로깅."
+        },
+        "require_reply": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "응답 필수."
+        },
+        "min_reply_length": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "최소 응답 길이."
+        },
+        "max_reply_length": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "최대 응답 길이."
+        },
+        "payload": {
+          "source": "manual"
+        }
+      }
+    },
+    "FILE_CHECK": {
+      "kind": "block",
+      "root": false,
+      "validParents": [
+        "real_server"
+      ],
+      "description": "FILE_CHECK 헬스체크.",
+      "source": "manual",
+      "srcRef": "check_file.c:135",
+      "directives": {
+        "connect_ip": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "check_api.c",
+          "description": "연결 대상 IP."
+        },
+        "connect_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 포트."
+        },
+        "bindto": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 IP."
+        },
+        "bind_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 포트."
+        },
+        "bind_if": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 인터페이스."
+        },
+        "connect_timeout": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 타임아웃(초)."
+        },
+        "fwmark": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "방화벽 마크."
+        },
+        "retry": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 횟수."
+        },
+        "delay_before_retry": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 전 지연(초)."
+        },
+        "warmup": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "워밍업 지연(초)."
+        },
+        "delay_loop": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "헬스체크 주기(초)."
+        },
+        "alpha": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "alpha 모드."
+        },
+        "log_all_failures": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "모든 실패 로깅."
+        },
+        "track_file": {
+          "type": "ref",
+          "refTo": "track_files",
+          "source": "manual",
+          "description": "참조할 track_file."
+        },
+        "weight": {
+          "type": "int",
+          "min": -254,
+          "max": 254,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "가중치."
+        }
+      }
+    },
+    "BFD_CHECK": {
+      "kind": "block",
+      "root": false,
+      "validParents": [
+        "real_server"
+      ],
+      "description": "BFD_CHECK 헬스체크.",
+      "source": "manual",
+      "srcRef": "check_bfd.c:255",
+      "directives": {
+        "connect_ip": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "check_api.c",
+          "description": "연결 대상 IP."
+        },
+        "connect_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 포트."
+        },
+        "bindto": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 IP."
+        },
+        "bind_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 포트."
+        },
+        "bind_if": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 인터페이스."
+        },
+        "connect_timeout": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 타임아웃(초)."
+        },
+        "fwmark": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "방화벽 마크."
+        },
+        "retry": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 횟수."
+        },
+        "delay_before_retry": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 전 지연(초)."
+        },
+        "warmup": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "워밍업 지연(초)."
+        },
+        "delay_loop": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "헬스체크 주기(초)."
+        },
+        "alpha": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "alpha 모드."
+        },
+        "log_all_failures": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "모든 실패 로깅."
+        }
+      },
+      "conditional": "_WITH_BFD_"
+    },
+    "host": {
+      "kind": "block",
+      "root": false,
+      "validParents": [
+        "SMTP_CHECK"
+      ],
+      "conditional": "WITH_HOST_ENTRIES",
+      "description": "SMTP_CHECK 대상 호스트.",
+      "source": "manual",
+      "srcRef": "check_smtp.c:310",
+      "directives": {
+        "connect_ip": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "srcRef": "check_api.c",
+          "description": "연결 대상 IP."
+        },
+        "connect_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 포트."
+        },
+        "bindto": {
+          "type": "ip",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 IP."
+        },
+        "bind_port": {
+          "type": "port",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 포트."
+        },
+        "bind_if": {
+          "type": "string",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "송신 바인드 인터페이스."
+        },
+        "connect_timeout": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "연결 타임아웃(초)."
+        },
+        "fwmark": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "방화벽 마크."
+        },
+        "retry": {
+          "type": "int",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 횟수."
+        },
+        "delay_before_retry": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "재시도 전 지연(초)."
+        },
+        "warmup": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "워밍업 지연(초)."
+        },
+        "delay_loop": {
+          "type": "timer",
+          "min": 0,
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "헬스체크 주기(초)."
+        },
+        "alpha": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "alpha 모드."
+        },
+        "log_all_failures": {
+          "type": "bool",
+          "maxOccurs": 1,
+          "source": "manual",
+          "description": "모든 실패 로깅."
+        }
+      }
+    },
+    "vrrp_track_process": {
+      "kind": "block",
+      "root": true,
+      "conditional": "_WITH_TRACK_PROCESS_",
+      "description": "프로세스 존재로 추적하는 track process.",
+      "source": "manual",
+      "srcRef": "vrrp_parser.c:2445",
+      "args": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "defines": "track_processes",
+          "description": "track process 이름."
+        }
+      ],
+      "directives": {
+        "process": {
+          "type": "string",
+          "source": "manual",
+          "description": "추적할 프로세스명/경로."
+        },
+        "weight": {
+          "type": "int",
+          "min": -254,
+          "max": 254,
+          "source": "manual",
+          "description": "가중치."
+        },
+        "quorum": {
+          "type": "int",
+          "min": 1,
+          "source": "manual",
+          "description": "필요 인스턴스 수."
+        },
+        "quorum_max": {
+          "type": "int",
+          "source": "manual",
+          "description": "최대 인스턴스 수."
+        },
+        "delay": {
+          "type": "timer",
+          "source": "manual",
+          "description": "판정 지연(초)."
+        },
+        "fork_delay": {
+          "type": "timer",
+          "source": "manual",
+          "description": "fork 후 지연."
+        },
+        "terminate_delay": {
+          "type": "timer",
+          "source": "manual",
+          "description": "종료 지연."
+        },
+        "full_command": {
+          "type": "bool",
+          "source": "manual",
+          "description": "전체 커맨드라인 매칭."
+        },
+        "param_match": {
+          "source": "manual"
+        }
+      }
+    },
+    "garp_group": {
+      "kind": "block",
+      "root": true,
+      "description": "gratuitous ARP 그룹.",
+      "source": "manual",
+      "srcRef": "vrrp_parser.c:2313",
+      "directives": {
+        "garp_interval": {
+          "type": "timer",
+          "source": "manual",
+          "description": "GARP 간격."
+        },
+        "gna_interval": {
+          "type": "timer",
+          "source": "manual",
+          "description": "GNA 간격."
+        },
+        "interface": {
+          "type": "string",
+          "source": "manual",
+          "description": "대상 인터페이스."
+        },
+        "interfaces": {
+          "source": "manual"
+        }
+      }
+    },
+    "track_group": {
+      "kind": "block",
+      "root": true,
+      "description": "track 그룹.",
+      "source": "manual",
+      "srcRef": "vrrp_parser.c:2280",
+      "directives": {
+        "group": {
+          "type": "string",
+          "source": "manual",
+          "description": "그룹 멤버."
+        }
+      }
+    },
+    "static_ipaddress": {
+      "kind": "block",
+      "root": true,
+      "freeform": true,
+      "description": "정적 IP 주소 목록.",
+      "source": "manual",
+      "srcRef": "vrrp_parser.c:2285"
+    },
+    "static_routes": {
+      "kind": "block",
+      "root": true,
+      "freeform": true,
+      "description": "정적 경로 목록.",
+      "source": "manual",
+      "srcRef": "vrrp_parser.c:2286"
+    },
+    "static_rules": {
+      "kind": "block",
+      "root": true,
+      "freeform": true,
+      "description": "정적 정책 규칙 목록.",
+      "source": "manual",
+      "srcRef": "vrrp_parser.c:2287"
+    },
+    "unicast_peer": {
+      "kind": "block",
+      "root": false,
+      "freeform": true,
+      "validParents": [
+        "vrrp_instance"
+      ],
+      "description": "유니캐스트 피어 IP 목록.",
+      "source": "manual",
+      "srcRef": "vrrp_parser.c"
+    },
+    "bfd_instance": {
+      "kind": "block",
+      "root": true,
+      "conditional": "_WITH_BFD_",
+      "description": "BFD 인스턴스.",
+      "source": "manual",
+      "srcRef": "bfd_parser.c:510",
+      "args": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "defines": "bfd_instances",
+          "description": "BFD 인스턴스 이름."
+        }
+      ],
+      "directives": {
+        "neighbor_ip": {
+          "type": "ip",
+          "source": "manual",
+          "description": "이웃 IP."
+        },
+        "source_ip": {
+          "type": "ip",
+          "source": "manual",
+          "description": "소스 IP."
+        },
+        "min_rx": {
+          "type": "int",
+          "source": "manual",
+          "description": "최소 수신 간격(ms)."
+        },
+        "min_tx": {
+          "type": "int",
+          "source": "manual",
+          "description": "최소 송신 간격(ms)."
+        },
+        "idle_tx": {
+          "type": "int",
+          "source": "manual",
+          "description": "idle 송신 간격(ms)."
+        },
+        "multiplier": {
+          "type": "int",
+          "source": "manual",
+          "description": "감지 배수."
+        },
+        "passive": {
+          "type": "bool",
+          "source": "manual",
+          "description": "passive 모드."
+        },
+        "ttl": {
+          "type": "int",
+          "source": "manual",
+          "description": "TTL."
+        },
+        "max_hops": {
+          "type": "int",
+          "source": "manual",
+          "description": "최대 홉."
+        },
+        "weight": {
+          "type": "int",
+          "min": -253,
+          "max": 253,
+          "source": "manual",
+          "srcRef": "bfd_parser.c:423",
+          "description": "가중치."
+        }
+      }
     }
   }
 }

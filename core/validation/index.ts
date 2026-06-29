@@ -70,7 +70,10 @@ export function validateFiles(
   options: ValidateOptions = {}
 ): Map<string, Diagnostic[]> {
   const schema = options.schema ?? getSchema();
-  return validateInclude(files, entryPath, schema, options.reportUnused === true);
+  return validateInclude(files, entryPath, schema, {
+    reportUnused: options.reportUnused === true,
+    reportMissingRequired: options.reportMissingRequired === true,
+  });
 }
 
 function filterUnused(diags: Diagnostic[], reportUnused: boolean): Diagnostic[] {

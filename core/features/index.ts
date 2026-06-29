@@ -7,3 +7,5 @@ export { hoverAt, type HoverResult } from "./hover.js";
 export { completeAt, type CompletionItem, type CompletionKind } from "./completion.js";
 export { format, type FormatOptions } from "./format.js";
 export { locate, type LocationContext } from "./locate.js";
+export { definitionAt, type DefinitionResult } from "./definition.js";
+export { quickFixesFor, type Suggestion } from "./quickfix.js";

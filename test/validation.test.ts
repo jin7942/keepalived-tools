@@ -215,3 +215,32 @@ test("include: not-found reported", () => {
   const all = [...result.values()].flat();
   assert.ok(codes(all).includes("INCLUDE_NOT_FOUND"));
 });
+
+// ---- 스키마 확장 회귀 (1.0 커버리지) ----
+
+test("expanded: new global_defs directives produce no false positives", () => {
+  const diags = validateText("global_defs {\n vrrp_strict\n enable_snmp_vrrp\n nftables keepalived\n}\n");
+  assert.deepEqual(codes(diags), []);
+});
+
+test("expanded: vrrp_version typed range enforced", () => {
+  const diags = validateText("global_defs {\n vrrp_version 5\n}\n");
+  assert.ok(codes(diags).includes("TYPE_OUT_OF_RANGE"));
+});
+
+test("expanded: new vrrp_instance directives accepted", () => {
+  const diags = validateText("vrrp_instance VI {\n version 2\n accept\n promote_secondaries\n unicast_src_ip 10.0.0.1\n}\n");
+  assert.deepEqual(codes(diags), []);
+});
+
+test("expanded: SMTP_CHECK / DNS_CHECK blocks are defined (no false positive)", () => {
+  const smtp = validateText("virtual_server 10.0.0.1 80 {\n real_server 10.0.0.2 80 {\n SMTP_CHECK {\n connect_timeout 3\n helo_name x\n }\n }\n}\n");
+  assert.deepEqual(codes(smtp), []);
+  const dns = validateText("virtual_server 10.0.0.1 80 {\n real_server 10.0.0.2 80 {\n DNS_CHECK {\n type A\n name example.com\n }\n }\n}\n");
+  assert.deepEqual(codes(dns), []);
+});
+
+test("expanded: virtual_server ip_family enum validated", () => {
+  const diags = validateText("virtual_server 10.0.0.1 80 {\n ip_family inet9\n}\n");
+  assert.ok(codes(diags).includes("TYPE_INVALID_ENUM"));
+});

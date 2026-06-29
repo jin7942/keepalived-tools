@@ -5,7 +5,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { hoverAt, completeAt, format } from "../core/features/index.js";
+import { hoverAt, completeAt, format, definitionAt, quickFixesFor } from "../core/features/index.js";
 
 // ---- hover ----
 
@@ -101,4 +101,47 @@ test("format: idempotent", () => {
   const once = format(input);
   const twice = format(once);
   assert.equal(once, twice);
+});
+
+// ---- definition (go-to-definition) ----
+
+test("definition: track_script ref resolves to vrrp_script header", () => {
+  const text = 'vrrp_script chk {\n script "x"\n}\nvrrp_instance VI {\n track_script chk\n}\n';
+  // cursor on "chk" in the track_script line (line 4).
+  const def = definitionAt(text, 4, 14);
+  assert.ok(def, "expected a definition");
+  assert.equal(def!.name, "chk");
+  assert.equal(def!.range.start.line, 0); // vrrp_script chk header.
+});
+
+test("definition: cursor not on a ref returns null", () => {
+  const text = "vrrp_instance VI {\n priority 100\n}\n";
+  assert.equal(definitionAt(text, 1, 3), null);
+});
+
+test("definition: undefined ref returns null", () => {
+  const text = "vrrp_instance VI {\n track_script ghost\n}\n";
+  assert.equal(definitionAt(text, 1, 15), null);
+});
+
+// ---- quick-fix (did you mean) ----
+
+test("quickfix: enum typo suggests nearest valid value", () => {
+  // state MASTERR -> MASTER
+  const text = "vrrp_instance VI {\n state MASTERR\n}\n";
+  const fixes = quickFixesFor(text, "TYPE_INVALID_ENUM", "MASTERR", 1, 7);
+  assert.ok(fixes.some((f) => f.replacement === "MASTER"));
+});
+
+test("quickfix: far-off enum value yields no noisy suggestion", () => {
+  const text = "vrrp_instance VI {\n state ZZZZZZZZ\n}\n";
+  const fixes = quickFixesFor(text, "TYPE_INVALID_ENUM", "ZZZZZZZZ", 1, 7);
+  assert.deepEqual(fixes, []);
+});
+
+test("quickfix: unknown directive typo suggests nearest member", () => {
+  // priorty -> priority (vrrp_instance has priority directive)
+  const text = "vrrp_instance VI {\n priorty 100\n}\n";
+  const fixes = quickFixesFor(text, "SYNTAX_UNKNOWN_DIRECTIVE", "priorty", 1, 1);
+  assert.ok(fixes.some((f) => f.replacement === "priority"));
 });

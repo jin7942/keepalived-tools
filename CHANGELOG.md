@@ -2,6 +2,22 @@
 
 본 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/) 을 따른다.
 
+## [Unreleased] (0.23.0 작업 브랜치)
+
+48시간 자율 품질 강화. 즉시 운영 가능·제품급 안정성 목표.
+
+### Added
+- 문서 아웃라인(DocumentSymbol): 브레드크럼·Ctrl+Shift+O·접기 향상.
+- include 클릭 이동(DocumentLink): glob resolve 해 파일로 점프.
+- 명령 팔레트: Show Schema Version / Validate Active File / Format Document.
+- 문법 강조 확장: `~SEQ()` 시퀀스, IPv4/IPv6/CIDR, BOOL 키워드 (RFP §3.1).
+- 스니펫 추가: vrrp_sync_group, unicast vrrp_instance, virtual_server_group, include.
+
+### Changed
+- 예외 처리를 어댑터 경계(guard/guardAsync)로 일원화 — 발생 지점 try-catch 제거.
+- 전 provider 예외 격리 + 출력 채널 로깅.
+- include resolve 로직을 공유 모듈로 추출(진단·링크 일치), 심링크 순환 방지.
+
 ## [1.0.0] - 2026-06-29
 
 첫 정식 릴리스. 0.1.0 의 기능 토대 위에 정식 출시 품질 보강.

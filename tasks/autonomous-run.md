@@ -44,3 +44,11 @@
 ## 사이클 로그
 - C1 17:15 / 예외 경계 일관 적용(guard 전 provider) / test 77 green / de79127
   - 감사 에이전트 2종(quality/feature) 가동 — 백로그 정밀화 대기.
+- C2 17:30~ / feature 감사 반영: MUST 4종 + SHOULD 일부 / test 82 green
+  - 아웃라인(DocumentSymbol) 595f3e3
+  - include 클릭이동(DocumentLink)+resolver 추출 5486b85
+  - commands(팔레트) + RevalidateNow
+  - 문법 ~SEQ/IP/CIDR/BOOL
+  - 스니펫 4종
+  - ADR-0014, CHANGELOG/README 갱신
+  - 남은 MUST: publisher(사용자 자산). quality 감사 응답 대기 → 다음 P0 견고성.

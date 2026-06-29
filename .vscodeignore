@@ -1,6 +1,8 @@
 .vscode/**
 .git/**
+.claude/**
 .claude-log/**
+CLAUDE.md
 docs/**
 tasks/**
 test/**
@@ -15,4 +17,5 @@ esbuild.mjs
 .gitignore
 schema/keepalived-spec.json
 schema/overrides.json
+schema/keepalived-spec.merged.json
 **/.DS_Store

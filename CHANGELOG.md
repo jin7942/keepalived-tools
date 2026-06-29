@@ -2,7 +2,9 @@
 
 본 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/) 을 따른다.
 
-## [Unreleased]
+## [0.1.0] - 2026-06-29
+
+첫 릴리스. keepalived.conf 풀기능 지원.
 
 ### Added
 - 문법 강조 (tmLanguage, 스키마에서 생성).

@@ -110,19 +110,55 @@ async function resolveIncludes(filePath: string, text: string): Promise<string[]
   return out;
 }
 
-/** 단순 glob 확장: `dir/*.conf` 만 지원. 그 외는 그대로 경로로 취급. */
+/**
+ * glob 확장. 지원: `dir/*.conf`(단일 디렉토리), `dir/** /*.conf`(재귀).
+ * glob 문자 없으면 경로 그대로. keepalived 의 흔한 include 패턴을 커버한다.
+ */
 async function expandGlob(pattern: string): Promise<string[]> {
-  const star = pattern.indexOf("*");
-  if (star === -1) return [pattern];
+  if (!pattern.includes("*")) return [pattern];
+
+  if (pattern.includes("**")) {
+    // 재귀: ** 이전을 루트, 이후 basename 패턴으로 매칭.
+    const idx = pattern.indexOf("**");
+    const root = path.dirname(pattern.slice(0, idx)) || pattern.slice(0, idx) || "/";
+    const base = path.basename(pattern);
+    const re = globToRegExp(base);
+    return walkDir(root, re);
+  }
+
   const dir = path.dirname(pattern);
-  const base = path.basename(pattern);
-  const re = new RegExp("^" + base.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*") + "$");
+  const re = globToRegExp(path.basename(pattern));
   try {
     const entries = await fs.readdir(dir);
     return entries.filter((e) => re.test(e)).map((e) => path.join(dir, e));
   } catch {
     return [];
   }
+}
+
+function globToRegExp(base: string): RegExp {
+  return new RegExp("^" + base.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*") + "$");
+}
+
+/** 디렉토리를 재귀 워크하며 basename 이 re 에 맞는 파일 수집(깊이 제한). */
+async function walkDir(root: string, re: RegExp, depth = 0): Promise<string[]> {
+  if (depth > 16) return []; // 폭주 방지.
+  const out: string[] = [];
+  let entries: import("node:fs").Dirent[];
+  try {
+    entries = await fs.readdir(root, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+  for (const e of entries) {
+    const full = path.join(root, e.name);
+    if (e.isDirectory()) {
+      out.push(...(await walkDir(full, re, depth + 1)));
+    } else if (re.test(e.name)) {
+      out.push(full);
+    }
+  }
+  return out;
 }
 
 function publish(

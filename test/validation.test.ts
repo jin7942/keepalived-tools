@@ -254,3 +254,22 @@ test("nested include inside a block is collected", () => {
   const globs = collectIncludes(ast).map((n: { glob: string }) => n.glob).sort();
   assert.deepEqual(globs, ["sub.conf", "top.conf"]);
 });
+
+// ---- M1 회귀: 순환 include 진단 (1회·명확 메시지) ----
+
+test("include cycle reported exactly once with full chain", () => {
+  const files = [
+    { path: "/a.conf", text: "include b.conf\n", resolvedIncludes: ["/b.conf"] },
+    { path: "/b.conf", text: "include a.conf\n", resolvedIncludes: ["/a.conf"] },
+  ];
+  const all = [...validateFiles(files, "/a.conf").values()].flat();
+  const cyc = all.filter((d) => d.code === "INCLUDE_CYCLE");
+  assert.equal(cyc.length, 1);
+  assert.ok(cyc[0].message.includes("→"));
+});
+
+test("include self-cycle detected", () => {
+  const files = [{ path: "/a.conf", text: "include a.conf\n", resolvedIncludes: ["/a.conf"] }];
+  const cyc = [...validateFiles(files, "/a.conf").values()].flat().filter((d) => d.code === "INCLUDE_CYCLE");
+  assert.equal(cyc.length, 1);
+});

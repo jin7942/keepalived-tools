@@ -99,27 +99,51 @@ function checkIncludeGraph(
     }
   }
 
-  // 순환 감지: entry 부터 DFS.
-  const visiting = new Set<string>();
+  // 순환 감지: 모든 파일을 시작점으로 DFS(entry 에서 닿지 않는 순환도 검출).
+  // 순환을 닫는 엣지 1곳에만, 전체 경로를 담은 명확한 메시지로 보고.
   const done = new Set<string>();
-  const cycleFrom = (path: string): boolean => {
-    if (visiting.has(path)) return true;
-    if (done.has(path)) return false;
-    visiting.add(path);
-    const f = byPath.get(path);
-    for (const inc of f?.resolvedIncludes ?? []) {
-      if (cycleFrom(inc)) {
-        pushTo(result, path, diag(zeroRange(), "error", "INCLUDE_CYCLE", `Circular include detected at: ${inc}`));
-        visiting.delete(path);
-        done.add(path);
-        return true;
+  const stack: string[] = [];
+  const onStack = new Set<string>();
+  const reported = new Set<string>(); // 같은 순환을 중복 보고하지 않도록 키로 막음.
+
+  const dfs = (path: string): void => {
+    if (onStack.has(path)) {
+      // path 부터 스택 끝까지가 순환. 정규화 키로 중복 제거.
+      const from = stack.indexOf(path);
+      const cycle = [...stack.slice(from), path];
+      const key = [...cycle].sort().join("|");
+      if (!reported.has(key)) {
+        reported.add(key);
+        const chain = cycle.map(basename).join(" → ");
+        // 순환을 닫는 노드(스택 마지막)에 보고.
+        pushTo(
+          result,
+          stack[stack.length - 1],
+          diag(zeroRange(), "error", "INCLUDE_CYCLE", `Include cycle: ${chain}`)
+        );
       }
+      return;
     }
-    visiting.delete(path);
+    if (done.has(path)) return;
+
+    stack.push(path);
+    onStack.add(path);
+    for (const inc of byPath.get(path)?.resolvedIncludes ?? []) {
+      if (byPath.has(inc)) dfs(inc);
+    }
+    onStack.delete(path);
+    stack.pop();
     done.add(path);
-    return false;
   };
-  if (byPath.has(entryPath)) cycleFrom(entryPath);
+
+  // entry 우선, 이어서 미방문 파일 전부.
+  if (byPath.has(entryPath)) dfs(entryPath);
+  for (const f of files) if (!done.has(f.path)) dfs(f.path);
+}
+
+function basename(p: string): string {
+  const i = Math.max(p.lastIndexOf("/"), p.lastIndexOf("\\"));
+  return i >= 0 ? p.slice(i + 1) : p;
 }
 
 function pushTo(map: Map<string, Diagnostic[]>, key: string, d: Diagnostic): void {

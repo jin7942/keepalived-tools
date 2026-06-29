@@ -44,6 +44,10 @@
 ## 사이클 로그
 - C1 17:15 / 예외 경계 일관 적용(guard 전 provider) / test 77 green / de79127
   - 감사 에이전트 2종(quality/feature) 가동 — 백로그 정밀화 대기.
+- C4 (자율틱) / 공식 샘플 25종 검증 → 거짓양성 1건 발견·수정 / test 106 green
+  - status_code 다중·범위(200-299) 단일 int 오인 → type 제거(name-only).
+  - 공식 doc/samples 16종 fixture 회귀: error 진단 0 보장 (신뢰성 결정 증거).
+  - 커밋 8e02a6b.
 - C3 ~17:40 / quality 감사 전면 반영(C1·H1·H2·M1~M4·L1~L3) / test 90 green
   - C1 중첩include, H1 BOM, H2 캐시/버퍼, M1 순환진단, M2 NEWLINE,
     M3 심볼키, M4 glob/심링크, L1~L3 정리. CRLF·멀티바이트 회귀.

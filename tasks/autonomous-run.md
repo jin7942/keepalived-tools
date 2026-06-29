@@ -44,6 +44,10 @@
 ## 사이클 로그
 - C1 17:15 / 예외 경계 일관 적용(guard 전 provider) / test 77 green / de79127
   - 감사 에이전트 2종(quality/feature) 가동 — 백로그 정밀화 대기.
+- C6 (자율틱) / completion 견고성 확인 / test 124 green
+  - alias enum(lb_algo→rr/wrr) + 깊은 중첩(url) 컨텍스트 회귀 박제.
+  - 거짓 경보(동작 정상)였으나 회귀 가드 2개 추가. 커밋 56e0dd9.
+  - 다음: P3 CI 워크플로(.github/workflows) — 원격 없어도 파일 준비 가능.
 - C5 (자율틱) / 포맷터 안전성 검증 / test 122 green
   - 공식 샘플 16종: format 멱등 + 토큰 시그니처 불변(내용보존) 박제.
   - 포맷터가 실제 설정 구조·값을 손상 안 함 입증. 커밋 2d2bbd8.

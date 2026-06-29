@@ -1,0 +1,72 @@
+{
+  "name": "keepalived-tools",
+  "displayName": "keepalived-tools",
+  "description": "Syntax highlighting, validation, completion, hover, snippets and formatting for keepalived.conf",
+  "version": "0.1.0",
+  "license": "GPL-2.0-or-later",
+  "publisher": "keepalived-tools",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters",
+    "Formatters"
+  ],
+  "keywords": [
+    "keepalived",
+    "vrrp",
+    "lvs",
+    "ipvs",
+    "high-availability"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "keepalived",
+        "aliases": [
+          "keepalived",
+          "Keepalived"
+        ],
+        "filenames": [
+          "keepalived.conf"
+        ],
+        "filenamePatterns": [
+          "**/keepalived/*.conf",
+          "**/keepalived.conf.d/**/*.conf",
+          "**/conf.d/*.conf"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "keepalived",
+        "scopeName": "source.keepalived",
+        "path": "./syntaxes/keepalived.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "keepalived",
+        "path": "./snippets/keepalived.code-snippets"
+      }
+    ]
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build:schema": "tsx tools/extract-schema/merge-overrides.ts",
+    "build": "npm run build:schema && tsc --noEmit && node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "test": "npm run build:schema && tsx --test test/**/*.test.ts",
+    "package": "npm run build && vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.20.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
+  }
+}

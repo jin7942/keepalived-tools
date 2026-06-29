@@ -151,3 +151,20 @@ test("lexer: leading BOM does not corrupt first keyword", () => {
   assert.equal(ast.body[0].type, "block");
   assert.equal((ast.body[0] as Block).keyword, "global_defs");
 });
+
+// ---- 견고성 회귀: CRLF / 멀티바이트 ----
+
+test("parser: CRLF line endings parse like LF", () => {
+  const ast = parse("vrrp_instance VI {\r\n priority 100\r\n}\r\n").ast;
+  assert.equal(ast.body[0].type, "block");
+  assert.equal((ast.body[0] as Block).keyword, "vrrp_instance");
+});
+
+test("parser: multibyte argument counted in UTF-16 columns", () => {
+  const ast = parse("vrrp_instance 日本 {\n priority 100\n}\n").ast;
+  const blk = ast.body[0] as Block;
+  assert.equal(blk.args[0].text, "日本");
+  // '日本' = 2 UTF-16 units → 다음 줄 priority 들여쓰기 col 은 1.
+  const dir = blk.body[0] as Directive;
+  assert.equal(dir.range.start.col, 1);
+});

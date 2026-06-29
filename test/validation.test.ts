@@ -273,3 +273,8 @@ test("include self-cycle detected", () => {
   const cyc = [...validateFiles(files, "/a.conf").values()].flat().filter((d) => d.code === "INCLUDE_CYCLE");
   assert.equal(cyc.length, 1);
 });
+
+test("CRLF config validates clean (no false diagnostics)", () => {
+  const diags = validateText("vrrp_instance VI {\r\n priority 100\r\n}\r\n");
+  assert.deepEqual(codes(diags), []);
+});

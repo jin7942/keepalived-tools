@@ -1,0 +1,77 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "keepalived",
+  "scopeName": "source.keepalived",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#conditional"
+    },
+    {
+      "include": "#blocks"
+    },
+    {
+      "include": "#directives"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#variables"
+    },
+    {
+      "include": "#numbers"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.keepalived",
+          "match": "#.*$"
+        },
+        {
+          "name": "comment.line.exclamation.keepalived",
+          "match": "!.*$"
+        }
+      ]
+    },
+    "conditional": {
+      "match": "^\\s*(@\\^?[\\w-]+)",
+      "captures": {
+        "1": {
+          "name": "keyword.control.conditional.keepalived"
+        }
+      }
+    },
+    "blocks": {
+      "name": "keyword.control.block.keepalived",
+      "match": "\\b(virtual_server_group|track_interface|vrrp_sync_group|vrrp_track_file|authentication|virtual_server|vrrp_instance|track_script|global_defs|vrrp_script|real_server|MISC_CHECK|track_file|TCP_CHECK|HTTP_GET|SSL_GET|url)\\b"
+    },
+    "directives": {
+      "name": "keyword.other.directive.keepalived",
+      "match": "\\b(notification_email_from|vrrp_garp_master_repeat|persistence_granularity|vrrp_garp_master_delay|enable_script_security|smtp_connect_timeout|persistence_timeout|notification_email|inhibit_on_failure|delay_before_retry|max_auto_priority|virtual_router_id|advertisement_int|connect_timeout|preempt_delay|notify_master|notify_backup|notify_fault|sorry_server|connect_port|nb_get_retry|misc_timeout|misc_dynamic|smtp_server|script_user|virtualhost|notify_down|status_code|advert_int|lvs_method|delay_loop|uthreshold|lthreshold|connect_ip|router_id|interface|nopreempt|auth_type|auth_pass|init_fail|lvs_sched|notify_up|misc_path|priority|use_vmac|interval|protocol|timeout|lb_algo|lb_kind|script|weight|quorum|bindto|warmup|digest|state|group|retry|rise|fall|user|path|file)\\b"
+    },
+    "strings": {
+      "name": "string.quoted.double.keepalived",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.keepalived",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "variables": {
+      "name": "variable.other.keepalived",
+      "match": "\\$[A-Za-z_][A-Za-z0-9_]*"
+    },
+    "numbers": {
+      "name": "constant.numeric.keepalived",
+      "match": "\\b\\d+(\\.\\d+)?\\b"
+    }
+  }
+}

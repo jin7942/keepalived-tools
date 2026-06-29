@@ -57,7 +57,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "build:schema": "tsx tools/extract-schema/merge-overrides.ts",
-    "build": "npm run build:schema && tsc --noEmit && node esbuild.mjs",
+    "build:grammar": "tsx tools/extract-schema/gen-grammar.ts",
+    "build": "npm run build:schema && npm run build:grammar && tsc --noEmit && node esbuild.mjs",
     "watch": "node esbuild.mjs --watch",
     "test": "npm run build:schema && tsx --test test/**/*.test.ts",
     "package": "npm run build && vsce package"

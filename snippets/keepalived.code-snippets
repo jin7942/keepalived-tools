@@ -1,0 +1,78 @@
+{
+  "global_defs block": {
+    "prefix": "global_defs",
+    "body": [
+      "global_defs {",
+      "\trouter_id ${1:LVS_DEVEL}",
+      "}"
+    ],
+    "description": "전역 설정 블록"
+  },
+  "vrrp_instance block": {
+    "prefix": "vrrp_instance",
+    "body": [
+      "vrrp_instance ${1:VI_1} {",
+      "\tstate ${2|MASTER,BACKUP|}",
+      "\tinterface ${3:eth0}",
+      "\tvirtual_router_id ${4:51}",
+      "\tpriority ${5:100}",
+      "\tadvert_int ${6:1}",
+      "\tauthentication {",
+      "\t\tauth_type ${7|PASS,AH|}",
+      "\t\tauth_pass ${8:1111}",
+      "\t}",
+      "\tvirtual_ipaddress {",
+      "\t\t${9:192.168.0.100}",
+      "\t}",
+      "}"
+    ],
+    "description": "VRRP 인스턴스 골격"
+  },
+  "vrrp_script block": {
+    "prefix": "vrrp_script",
+    "body": [
+      "vrrp_script ${1:chk_service} {",
+      "\tscript \"${2:/usr/bin/killall -0 nginx}\"",
+      "\tinterval ${3:2}",
+      "\tweight ${4:2}",
+      "\tfall ${5:3}",
+      "\trise ${6:2}",
+      "}"
+    ],
+    "description": "추적 스크립트 골격"
+  },
+  "virtual_server block": {
+    "prefix": "virtual_server",
+    "body": [
+      "virtual_server ${1:10.0.0.1} ${2:80} {",
+      "\tdelay_loop ${3:6}",
+      "\tlb_algo ${4|rr,wrr,lc,wlc,lblc,sh,mh,dh,fo,ovf,lblcr,sed,nq,twos|}",
+      "\tlb_kind ${5|NAT,DR,TUN|}",
+      "\tprotocol ${6|TCP,UDP,SCTP|}",
+      "\treal_server ${7:192.168.0.10} ${8:80} {",
+      "\t\tweight ${9:1}",
+      "\t\tTCP_CHECK {",
+      "\t\t\tconnect_timeout ${10:3}",
+      "\t\t}",
+      "\t}",
+      "}"
+    ],
+    "description": "LVS 가상 서버 골격"
+  },
+  "real_server block": {
+    "prefix": "real_server",
+    "body": [
+      "real_server ${1:192.168.0.10} ${2:80} {",
+      "\tweight ${3:1}",
+      "\tHTTP_GET {",
+      "\t\turl {",
+      "\t\t\tpath ${4:/health}",
+      "\t\t\tstatus_code ${5:200}",
+      "\t\t}",
+      "\t\tconnect_timeout ${6:3}",
+      "\t}",
+      "}"
+    ],
+    "description": "real_server + HTTP_GET 골격"
+  }
+}

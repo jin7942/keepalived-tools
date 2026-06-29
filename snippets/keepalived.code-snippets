@@ -74,5 +74,51 @@
       "}"
     ],
     "description": "real_server + HTTP_GET 골격"
+  },
+  "vrrp_sync_group block": {
+    "prefix": "vrrp_sync_group",
+    "body": [
+      "vrrp_sync_group ${1:VG_1} {",
+      "\tgroup {",
+      "\t\t${2:VI_1}",
+      "\t\t${3:VI_2}",
+      "\t}",
+      "}"
+    ],
+    "description": "VRRP 동기화 그룹 골격"
+  },
+  "vrrp_instance (unicast)": {
+    "prefix": "vrrp_instance_unicast",
+    "body": [
+      "vrrp_instance ${1:VI_1} {",
+      "\tstate ${2|MASTER,BACKUP|}",
+      "\tinterface ${3:eth0}",
+      "\tvirtual_router_id ${4:51}",
+      "\tpriority ${5:100}",
+      "\tadvert_int ${6:1}",
+      "\tunicast_src_ip ${7:10.0.0.1}",
+      "\tunicast_peer {",
+      "\t\t${8:10.0.0.2}",
+      "\t}",
+      "\tvirtual_ipaddress {",
+      "\t\t${9:192.168.0.100}",
+      "\t}",
+      "}"
+    ],
+    "description": "유니캐스트 VRRP 인스턴스 골격"
+  },
+  "virtual_server_group block": {
+    "prefix": "virtual_server_group",
+    "body": [
+      "virtual_server_group ${1:VSG_1} {",
+      "\t${2:10.0.0.1} ${3:80}",
+      "}"
+    ],
+    "description": "가상 서버 그룹 골격"
+  },
+  "include directive": {
+    "prefix": "include",
+    "body": ["include ${1:/etc/keepalived/conf.d/*.conf}"],
+    "description": "다른 설정 파일 포함"
   }
 }

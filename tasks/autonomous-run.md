@@ -44,6 +44,10 @@
 ## 사이클 로그
 - C1 17:15 / 예외 경계 일관 적용(guard 전 provider) / test 77 green / de79127
   - 감사 에이전트 2종(quality/feature) 가동 — 백로그 정밀화 대기.
+- C8 (자율틱) / P2 설정 UI order 부여 / test 124 green
+  - configuration 4종에 order 1~4 (논리 순서). 커밋 38d491a.
+  - 백로그 대부분 소진. 남은: NICE(포맷터 range/hover manpage), P3 통합테스트
+    (@vscode/test-electron — 무거운 인프라, 도입 신중), 사용자자산(스크린샷/publisher).
 - C7 (자율틱) / P2 진단 메시지 일관성 감사 / test 124 green
   - 전 진단 메시지 수집·검토: 대체로 일관. timer 비음수 값 따옴표 누락,
     범위 메시지 비통일 2곳 → 'out of range (...), got N' 통일. 커밋 3127798.

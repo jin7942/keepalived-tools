@@ -4,13 +4,28 @@
 
 ---
 
-## 현재 상태 (2026-06-17, 재설계 후)
+## 현재 상태 (2026-06-29, 구현 완료 — 출시 수준)
 
-- 기획·설계 문서화 완료. 아키텍처 4종 **전면 재설계 완료** (소스 실측 기반). 코드 0줄.
-- 브랜치: `docs-design` (main에서 분기). 아직 커밋 안 함.
-- keepalived **2.3.4 소스 직접 검증** 완료 (이전 초안은 미검증 조사였음).
-- 초안 백업: `docs/_draft-backup/` (커밋 전 제거 검토).
-- 다음 할 일: 문서 커밋 → S0(프로젝트 셋업)부터 구현 시작.
+- 기획·설계·**구현 완료**. 테스트 66/66, 클린 빌드, .vsix 패키징 성공(30KB).
+- 브랜치: `docs-design`. 커밋 7개. ADR-0001~0011.
+- 스키마 22블록(수작업 시드, 2.3.4 실측). 자기리뷰 2종 반영(오탐/패키징).
+- 초안 백업: `docs/_draft-backup/`.
+
+### 구현 완료 (S0~S14, S1/S13일부 제외)
+- S0 셋업, 시드스키마, merge/grammar 빌드도구.
+- S2 문법, S3 파서, S4~S7 검증4층, S8~S11 features, S12 어댑터, S14 패키징.
+
+### 출시 전 남은 일 (비차단 / 사용자 자산·정책)
+- [ ] publisher 실제 Marketplace ID 등록 + package.json 교체.
+- [ ] icon PNG(128+) 추가 → package.json "icon".
+- [ ] (선택) README/CHANGELOG 영문 병기.
+- [ ] release: docs-design → v0.1.0 릴리스 브랜치 정리 → main MR → 태그 v0.1.0.
+- [ ] `docs/_draft-backup/` 제거 여부 결정.
+
+### 의도적 후순위 (v1.x)
+- S1 자동추출기(walk-registration/infer-types/resolve-consts) — ADR-0008.
+  현재 수작업 시드 대체. 스키마 커버리지는 흔한 블록에 complete:true 부여하며 점진 확대.
+- @vscode/test-electron 통합 테스트 (vscode 런타임). core는 단위 커버 완료.
 
 ### 재설계로 확정된 사실 (초안 정정)
 - 등록 파일 5→17개, install 함수 4→5종(conditional 추가), 최대 중첩 2→3.

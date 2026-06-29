@@ -104,21 +104,25 @@
         "keepalived.validation.enable": {
           "type": "boolean",
           "default": true,
+          "order": 1,
           "markdownDescription": "Enable diagnostics (syntax, type, semantic, include) for `keepalived.conf` files."
         },
         "keepalived.validation.reportMissingRequired": {
           "type": "boolean",
           "default": false,
+          "order": 2,
           "markdownDescription": "Report missing required directives (e.g. `script` in a `vrrp_script` block). Off by default to avoid false positives while editing (ADR-0011)."
         },
         "keepalived.validation.reportUnused": {
           "type": "boolean",
           "default": false,
+          "order": 3,
           "markdownDescription": "Report defined-but-unreferenced symbols (e.g. an unused `vrrp_script`). Off by default — an unreferenced definition is valid keepalived (ADR-0011)."
         },
         "keepalived.validation.maxFileSize": {
           "type": "number",
           "default": 1048576,
+          "order": 4,
           "markdownDescription": "Skip validation for files larger than this many bytes, to keep the editor responsive on very large generated configs. Set to `0` to disable the limit."
         }
       }

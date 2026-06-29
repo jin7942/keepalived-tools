@@ -12,6 +12,7 @@ import { validateText, validateFiles, type Diagnostic, type SourceFile } from ".
 import { parse } from "../core/parser/index.js";
 import { toVsRange, toVsSeverity } from "./convert.js";
 import { guardAsync } from "./errorBoundary.js";
+import { resolveGlob } from "./includeResolver.js";
 
 const DEBOUNCE_MS = 300;
 const LANGUAGE_ID = "keepalived";
@@ -146,60 +147,7 @@ async function resolveIncludes(filePath: string, text: string): Promise<string[]
   const out: string[] = [];
   for (const node of ast.body) {
     if (node.type !== "include") continue;
-    const glob = (node as { glob: string }).glob;
-    const abs = path.isAbsolute(glob) ? glob : path.join(baseDir, glob);
-    out.push(...(await expandGlob(abs)));
-  }
-  return out;
-}
-
-/**
- * glob 확장. 지원: `dir/*.conf`(단일 디렉토리), `dir/** /*.conf`(재귀).
- * glob 문자 없으면 경로 그대로. keepalived 의 흔한 include 패턴을 커버한다.
- */
-async function expandGlob(pattern: string): Promise<string[]> {
-  if (!pattern.includes("*")) return [pattern];
-
-  if (pattern.includes("**")) {
-    // 재귀: ** 이전을 루트, 이후 basename 패턴으로 매칭.
-    const idx = pattern.indexOf("**");
-    const root = path.dirname(pattern.slice(0, idx)) || pattern.slice(0, idx) || "/";
-    const base = path.basename(pattern);
-    const re = globToRegExp(base);
-    return walkDir(root, re);
-  }
-
-  const dir = path.dirname(pattern);
-  const re = globToRegExp(path.basename(pattern));
-  try {
-    const entries = await fs.readdir(dir);
-    return entries.filter((e) => re.test(e)).map((e) => path.join(dir, e));
-  } catch {
-    return [];
-  }
-}
-
-function globToRegExp(base: string): RegExp {
-  return new RegExp("^" + base.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*") + "$");
-}
-
-/** 디렉토리를 재귀 워크하며 basename 이 re 에 맞는 파일 수집(깊이 제한). */
-async function walkDir(root: string, re: RegExp, depth = 0): Promise<string[]> {
-  if (depth > 16) return []; // 폭주 방지.
-  const out: string[] = [];
-  let entries: import("node:fs").Dirent[];
-  try {
-    entries = await fs.readdir(root, { withFileTypes: true });
-  } catch {
-    return [];
-  }
-  for (const e of entries) {
-    const full = path.join(root, e.name);
-    if (e.isDirectory()) {
-      out.push(...(await walkDir(full, re, depth + 1)));
-    } else if (re.test(e.name)) {
-      out.push(full);
-    }
+    out.push(...(await resolveGlob(baseDir, (node as { glob: string }).glob)));
   }
   return out;
 }

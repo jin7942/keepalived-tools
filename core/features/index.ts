@@ -10,3 +10,4 @@ export { locate, type LocationContext } from "./locate.js";
 export { definitionAt, type DefinitionResult } from "./definition.js";
 export { quickFixesFor, type Suggestion } from "./quickfix.js";
 export { outline, type DocSymbol } from "./outline.js";
+export { includeLinks, type IncludeLink } from "./links.js";

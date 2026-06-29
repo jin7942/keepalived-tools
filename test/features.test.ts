@@ -5,7 +5,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { hoverAt, completeAt, format, definitionAt, quickFixesFor, outline } from "../core/features/index.js";
+import { hoverAt, completeAt, format, definitionAt, quickFixesFor, outline, includeLinks } from "../core/features/index.js";
 
 // ---- hover ----
 
@@ -171,4 +171,18 @@ test("outline: directives excluded, only blocks", () => {
   const syms = outline(text);
   assert.equal(syms.length, 1);
   assert.equal(syms[0].children.length, 0);
+});
+
+// ---- include links ----
+
+test("includeLinks: extracts glob and range from include directives", () => {
+  const text = 'include /etc/keepalived/conf.d/*.conf\nglobal_defs {\n}\n';
+  const links = includeLinks(text);
+  assert.equal(links.length, 1);
+  assert.equal(links[0].glob, "/etc/keepalived/conf.d/*.conf");
+  assert.equal(links[0].range.start.line, 0);
+});
+
+test("includeLinks: none when no include", () => {
+  assert.deepEqual(includeLinks("global_defs {\n}\n"), []);
 });

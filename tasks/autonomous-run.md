@@ -44,6 +44,9 @@
 ## 사이클 로그
 - C1 17:15 / 예외 경계 일관 적용(guard 전 provider) / test 77 green / de79127
   - 감사 에이전트 2종(quality/feature) 가동 — 백로그 정밀화 대기.
+- C5 (자율틱) / 포맷터 안전성 검증 / test 122 green
+  - 공식 샘플 16종: format 멱등 + 토큰 시그니처 불변(내용보존) 박제.
+  - 포맷터가 실제 설정 구조·값을 손상 안 함 입증. 커밋 2d2bbd8.
 - C4 (자율틱) / 공식 샘플 25종 검증 → 거짓양성 1건 발견·수정 / test 106 green
   - status_code 다중·범위(200-299) 단일 int 오인 → type 제거(name-only).
   - 공식 doc/samples 16종 fixture 회귀: error 진단 0 보장 (신뢰성 결정 증거).

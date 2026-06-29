@@ -17,52 +17,88 @@ export async function resolveGlob(baseDir: string, glob: string): Promise<string
 }
 
 /**
- * glob 확장. 지원: `dir/*.conf`(단일), `dir/** /*.conf`(재귀).
- * keepalived 의 흔한 include 패턴을 커버한다.
+ * glob 확장. 지원: `dir/*.conf`(단일), `dir/** /*.conf`(재귀),
+ * `dir/** /sub/*.conf`(중간 세그먼트 보존).
+ * 전체 경로를 정규식으로 변환해 매칭하므로 `**` 이후 구조도 존중한다(M4).
  */
 export async function expandGlob(pattern: string): Promise<string[]> {
   if (!pattern.includes("*")) return [pattern];
 
-  if (pattern.includes("**")) {
-    const idx = pattern.indexOf("**");
-    const root = path.dirname(pattern.slice(0, idx)) || pattern.slice(0, idx) || "/";
-    const re = globToRegExp(path.basename(pattern));
-    return walkDir(root, re);
-  }
+  // glob 문자 없는 최장 선두 디렉토리를 워크 루트로.
+  // 첫 `*` 앞에서 마지막 경로 구분자까지가 고정 디렉토리.
+  const firstStar = pattern.indexOf("*");
+  const lastSep = pattern.lastIndexOf("/", firstStar);
+  const root = lastSep > 0 ? pattern.slice(0, lastSep) : "/";
+  const re = fullGlobToRegExp(pattern);
 
-  const dir = path.dirname(pattern);
-  const re = globToRegExp(path.basename(pattern));
+  const recursive = pattern.includes("**");
+  return walkDir(root, re, recursive, new Set(), 0);
+}
+
+/** 전체 경로 glob → 정규식. `**`=슬래시 포함 임의, `*`=슬래시 제외 임의. */
+function fullGlobToRegExp(glob: string): RegExp {
+  let re = "";
+  for (let i = 0; i < glob.length; i++) {
+    const c = glob[i];
+    if (c === "*") {
+      if (glob[i + 1] === "*") {
+        re += ".*"; // ** : 디렉토리 경계 넘어 매칭.
+        i++;
+      } else {
+        re += "[^/]*"; // * : 한 세그먼트 내.
+      }
+    } else if (".+^${}()|[]\\".includes(c)) {
+      re += "\\" + c;
+    } else {
+      re += c;
+    }
+  }
+  return new RegExp("^" + re + "$");
+}
+
+/**
+ * 디렉토리 재귀 워크. full path 가 re 에 맞는 파일 수집.
+ * 심링크 순환은 realpath 방문 집합으로 차단(M4). 깊이 상한도 유지.
+ */
+async function walkDir(
+  dir: string,
+  re: RegExp,
+  recursive: boolean,
+  visited: Set<string>,
+  depth: number
+): Promise<string[]> {
+  if (depth > MAX_WALK_DEPTH) return [];
+
+  let real: string;
   try {
-    const entries = await fs.readdir(dir);
-    return entries
-      .filter((e) => re.test(e))
-      .map((e) => path.join(dir, e))
-      .sort();
+    real = await fs.realpath(dir);
   } catch {
     return [];
   }
-}
+  if (visited.has(real)) return []; // 심링크 순환 차단.
+  visited.add(real);
 
-function globToRegExp(base: string): RegExp {
-  return new RegExp("^" + base.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*") + "$");
-}
-
-/** 디렉토리 재귀 워크. basename 이 re 에 맞는 파일 수집(깊이 제한). */
-async function walkDir(root: string, re: RegExp, depth = 0): Promise<string[]> {
-  if (depth > MAX_WALK_DEPTH) return [];
   let entries: import("node:fs").Dirent[];
   try {
-    entries = await fs.readdir(root, { withFileTypes: true });
+    entries = await fs.readdir(dir, { withFileTypes: true });
   } catch {
     return [];
   }
+
   const out: string[] = [];
   for (const e of entries) {
-    const full = path.join(root, e.name);
-    // 일반 디렉토리만 따라간다(심링크 디렉토리는 순환 위험 → 건너뜀).
-    if (e.isDirectory()) {
-      out.push(...(await walkDir(full, re, depth + 1)));
-    } else if ((e.isFile() || e.isSymbolicLink()) && re.test(e.name)) {
+    const full = path.join(dir, e.name);
+    let isDir = e.isDirectory();
+    if (e.isSymbolicLink()) {
+      try {
+        isDir = (await fs.stat(full)).isDirectory();
+      } catch {
+        continue; // 깨진 심링크.
+      }
+    }
+    if (isDir) {
+      if (recursive) out.push(...(await walkDir(full, re, recursive, visited, depth + 1)));
+    } else if (re.test(full)) {
       out.push(full);
     }
   }

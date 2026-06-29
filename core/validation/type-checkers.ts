@@ -53,7 +53,7 @@ function checkTimer(text: string, spec: DirectiveSpec): TypeError | null {
   }
   const n = Number(text);
   if (n < 0 && (spec.min === undefined || spec.min >= 0)) {
-    return { code: "TYPE_OUT_OF_RANGE", message: `Timer must be non-negative, got ${text}` };
+    return { code: "TYPE_OUT_OF_RANGE", message: `Timer must be non-negative, got '${text}'` };
   }
   return rangeError(n, spec, "TYPE_OUT_OF_RANGE");
 }
@@ -124,10 +124,10 @@ function checkEnum(text: string, spec: DirectiveSpec): TypeError | null {
 
 function rangeError(n: number, spec: DirectiveSpec, code: string): TypeError | null {
   if (spec.min !== undefined && n < spec.min) {
-    return { code, message: `Value ${n} below minimum ${spec.min}` };
+    return { code, message: `Value out of range (min ${spec.min}), got ${n}` };
   }
   if (spec.max !== undefined && n > spec.max) {
-    return { code, message: `Value ${n} above maximum ${spec.max}` };
+    return { code, message: `Value out of range (max ${spec.max}), got ${n}` };
   }
   return null;
 }

@@ -224,3 +224,22 @@ for (const file of _readdirSync(_SAMPLES).filter((f) => f.endsWith(".conf"))) {
     assert.equal(tokenSig(once), tokenSig(orig), `content altered: ${file}`);
   });
 }
+
+// ---- completion enum: alias 지시어도 enum 값 제공 ----
+
+test("completion: alias directive lb_algo yields scheduler enum values", () => {
+  // " lb_algo " — col 9 = 값 입력 위치(키워드+공백 뒤).
+  const items = completeAt("virtual_server 10.0.0.1 80 {\n lb_algo \n}\n", 1, 9);
+  const labels = items.map((i) => i.label);
+  assert.ok(labels.includes("rr"));
+  assert.ok(labels.includes("wrr"));
+  assert.ok(items.every((i) => i.kind === "enum"));
+});
+
+test("completion: deeply nested url block resolves parent context", () => {
+  const t =
+    "virtual_server 10.0.0.1 80 {\n real_server 10.0.0.2 80 {\n  HTTP_GET {\n   url {\n    \n   }\n  }\n }\n}\n";
+  const labels = completeAt(t, 4, 4).map((i) => i.label);
+  assert.ok(labels.includes("path"));
+  assert.ok(labels.includes("status_code"));
+});

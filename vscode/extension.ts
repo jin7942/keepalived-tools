@@ -16,12 +16,14 @@ import { KeepalivedDefinitionProvider } from "./definition.js";
 import { KeepalivedCodeActionProvider } from "./codeActions.js";
 import { KeepalivedSymbolProvider } from "./symbols.js";
 import { KeepalivedDocumentLinkProvider } from "./documentLinks.js";
+import { registerCommands } from "./commands.js";
 
 const LANGUAGE_ID = "keepalived";
 const selector: vscode.DocumentSelector = { language: LANGUAGE_ID };
 
 export function activate(context: vscode.ExtensionContext): void {
-  registerDiagnostics(context);
+  const revalidate = registerDiagnostics(context);
+  registerCommands(context, revalidate);
 
   context.subscriptions.push(
     vscode.languages.registerHoverProvider(selector, new KeepalivedHoverProvider()),

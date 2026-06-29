@@ -69,6 +69,35 @@
         "path": "./snippets/keepalived.code-snippets"
       }
     ],
+    "commands": [
+      {
+        "command": "keepalived.showSchemaVersion",
+        "title": "Show Schema Version",
+        "category": "Keepalived"
+      },
+      {
+        "command": "keepalived.validateActiveFile",
+        "title": "Validate Active File",
+        "category": "Keepalived"
+      },
+      {
+        "command": "keepalived.formatDocument",
+        "title": "Format Document",
+        "category": "Keepalived"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "keepalived.validateActiveFile",
+          "when": "editorLangId == keepalived"
+        },
+        {
+          "command": "keepalived.formatDocument",
+          "when": "editorLangId == keepalived"
+        }
+      ]
+    },
     "configuration": {
       "title": "Keepalived",
       "properties": {

@@ -33,7 +33,10 @@ function readOptions(doc: vscode.TextDocument): {
   };
 }
 
-export function registerDiagnostics(context: vscode.ExtensionContext): void {
+/** 활성 문서를 디바운스 없이 즉시 재검증하는 함수. validate 명령이 호출. */
+export type RevalidateNow = (doc: vscode.TextDocument) => void;
+
+export function registerDiagnostics(context: vscode.ExtensionContext): RevalidateNow {
   const collection = vscode.languages.createDiagnosticCollection("keepalived");
   context.subscriptions.push(collection);
 
@@ -70,6 +73,18 @@ export function registerDiagnostics(context: vscode.ExtensionContext): void {
 
   // 이미 열린 문서.
   for (const doc of vscode.workspace.textDocuments) schedule(doc);
+
+  // 명령용 즉시 재검증(디바운스 우회).
+  return (doc: vscode.TextDocument) => {
+    if (doc.languageId !== LANGUAGE_ID) return;
+    const existing = timers.get(doc.uri.toString());
+    if (existing) clearTimeout(existing);
+    void guardAsync(
+      "validate",
+      () => runValidation(doc, collection),
+      () => collection.delete(doc.uri)
+    );
+  };
 }
 
 /** 검증 본체. 예외는 잡지 않고 전파 — 호출부 경계(guardAsync)가 처리. */

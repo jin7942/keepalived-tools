@@ -132,3 +132,22 @@ test("parser: brace on next line", () => {
   assert.equal(vi.type, "block");
   assert.equal(vi.body.length, 1);
 });
+
+// ---- M2 회귀: NEWLINE 토큰 end 위치 ----
+
+test("lexer: NEWLINE end is next line col 0", () => {
+  const toks = tokenize("x\ny");
+  const nl = toks.find((t) => t.type === "NEWLINE");
+  assert.ok(nl);
+  assert.equal(nl!.start.line, 0);
+  assert.equal(nl!.end.line, 1);
+  assert.equal(nl!.end.col, 0);
+});
+
+// ---- H1 회귀: 선두 BOM 스킵 ----
+
+test("lexer: leading BOM does not corrupt first keyword", () => {
+  const ast = parse("﻿global_defs {\n}\n").ast;
+  assert.equal(ast.body[0].type, "block");
+  assert.equal((ast.body[0] as Block).keyword, "global_defs");
+});

@@ -50,7 +50,7 @@ class Lexer {
       const ch = this.src[this.pos];
 
       if (ch === "\n") {
-        this.pushSingle("NEWLINE", "\n");
+        this.pushNewline();
         this.advanceNewline();
         continue;
       }
@@ -106,6 +106,13 @@ class Lexer {
     const start = this.posObj();
     const end: Position = { line: this.line, col: this.col + raw.length, offset: this.pos + raw.length };
     this.tokens.push({ type, raw, value: raw, start, end });
+  }
+
+  /** NEWLINE 은 end 가 다음 줄 col 0 (개행은 줄을 넘긴다). */
+  private pushNewline(): void {
+    const start = this.posObj();
+    const end: Position = { line: this.line + 1, col: 0, offset: this.pos + 1 };
+    this.tokens.push({ type: "NEWLINE", raw: "\n", value: "\n", start, end });
   }
 
   private skipLineComment(): void {

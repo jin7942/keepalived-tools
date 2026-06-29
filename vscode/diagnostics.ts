@@ -8,7 +8,7 @@
 import * as vscode from "vscode";
 import * as path from "node:path";
 import * as fs from "node:fs/promises";
-import { validateText, validateFiles, type Diagnostic, type SourceFile } from "../core/validation/index.js";
+import { validateText, validateFiles, collectIncludes, type Diagnostic, type SourceFile } from "../core/validation/index.js";
 import { parse } from "../core/parser/index.js";
 import { toVsRange, toVsSeverity } from "./convert.js";
 import { guardAsync } from "./errorBoundary.js";
@@ -125,8 +125,7 @@ async function runValidation(
 }
 
 function collectIncludeGlobs(text: string): string[] {
-  const { ast } = parse(text);
-  return ast.body.filter((n) => n.type === "include").map((n) => (n as { glob: string }).glob);
+  return collectIncludes(parse(text).ast).map((n) => n.glob);
 }
 
 /**
@@ -158,11 +157,9 @@ async function gatherFiles(entryPath: string, entryText: string): Promise<Source
 
 async function resolveIncludes(filePath: string, text: string): Promise<string[]> {
   const baseDir = path.dirname(filePath);
-  const { ast } = parse(text);
   const out: string[] = [];
-  for (const node of ast.body) {
-    if (node.type !== "include") continue;
-    out.push(...(await resolveGlob(baseDir, (node as { glob: string }).glob)));
+  for (const node of collectIncludes(parse(text).ast)) {
+    out.push(...(await resolveGlob(baseDir, node.glob)));
   }
   return out;
 }

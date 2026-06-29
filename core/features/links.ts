@@ -9,6 +9,7 @@
 
 import { parse } from "../parser/index.js";
 import type { Range } from "../parser/ast.js";
+import { collectIncludes } from "../validation/walk.js";
 
 export interface IncludeLink {
   /** include 대상 glob (원본). */
@@ -17,13 +18,7 @@ export interface IncludeLink {
   range: Range;
 }
 
-/** 텍스트에서 모든 include 지시어를 찾아 glob+range 로 반환. */
+/** 텍스트에서 모든 include 지시어를 찾아 glob+range 로 반환 (중첩 포함). */
 export function includeLinks(text: string): IncludeLink[] {
-  const { ast } = parse(text);
-  const out: IncludeLink[] = [];
-  for (const node of ast.body) {
-    if (node.type !== "include") continue;
-    out.push({ glob: node.glob, range: node.range });
-  }
-  return out;
+  return collectIncludes(parse(text).ast).map((n) => ({ glob: n.glob, range: n.range }));
 }

@@ -244,3 +244,13 @@ test("expanded: virtual_server ip_family enum validated", () => {
   const diags = validateText("virtual_server 10.0.0.1 80 {\n ip_family inet9\n}\n");
   assert.ok(codes(diags).includes("TYPE_INVALID_ENUM"));
 });
+
+// ---- C1 회귀: 중첩 include (블록 안) ----
+
+test("nested include inside a block is collected", () => {
+  const { collectIncludes } = require("../core/validation/index.js");
+  const { parse } = require("../core/parser/index.js");
+  const ast = parse("vrrp_instance VI {\n include sub.conf\n}\ninclude top.conf\n").ast;
+  const globs = collectIncludes(ast).map((n: { glob: string }) => n.glob).sort();
+  assert.deepEqual(globs, ["sub.conf", "top.conf"]);
+});

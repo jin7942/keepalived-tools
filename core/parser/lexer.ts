@@ -43,6 +43,9 @@ class Lexer {
   constructor(private readonly src: string) {}
 
   run(): Token[] {
+    // 선두 UTF-8 BOM(U+FEFF) 스킵 — Windows 파일에서 첫 키워드 오염 방지.
+    if (this.src.charCodeAt(0) === 0xfeff) this.advance();
+
     while (this.pos < this.src.length) {
       const ch = this.src[this.pos];
 

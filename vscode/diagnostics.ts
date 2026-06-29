@@ -143,16 +143,40 @@ async function gatherFiles(entryPath: string, entryText: string): Promise<Source
     seen.set(p, { path: p, text, resolvedIncludes: resolved });
     for (const inc of resolved) {
       if (!seen.has(inc)) {
-        try {
-          const t = await fs.readFile(inc, "utf8");
-          queue.push({ p: inc, text: t });
-        } catch {
-          // 못 읽는 파일은 core 가 NOT_FOUND 로 처리.
-        }
+        const t = await readIncluded(inc);
+        if (t !== undefined) queue.push({ p: inc, text: t });
+        // 못 읽는 파일은 core 가 NOT_FOUND 로 처리.
       }
     }
   }
   return [...seen.values()];
+}
+
+/** path -> {mtimeMs, text}. fs 재읽기·재파싱 비용 절감(H2). */
+const fileCache = new Map<string, { mtimeMs: number; text: string }>();
+
+/**
+ * 포함 파일 텍스트를 읽는다.
+ * 1) 열린 VSCode 문서가 있으면 그 버퍼(미저장 편집 반영).
+ * 2) 아니면 fs — mtime 캐시로 변경 없으면 재읽기 생략.
+ * 못 읽으면 undefined.
+ */
+async function readIncluded(absPath: string): Promise<string | undefined> {
+  const uri = vscode.Uri.file(absPath);
+  const open = vscode.workspace.textDocuments.find((d) => d.uri.fsPath === absPath);
+  if (open) return open.getText();
+
+  try {
+    const stat = await fs.stat(uri.fsPath);
+    const cached = fileCache.get(absPath);
+    if (cached && cached.mtimeMs === stat.mtimeMs) return cached.text;
+    const text = await fs.readFile(absPath, "utf8");
+    fileCache.set(absPath, { mtimeMs: stat.mtimeMs, text });
+    return text;
+  } catch {
+    fileCache.delete(absPath);
+    return undefined;
+  }
 }
 
 async function resolveIncludes(filePath: string, text: string): Promise<string[]> {

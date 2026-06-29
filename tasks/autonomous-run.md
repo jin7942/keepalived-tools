@@ -39,7 +39,7 @@
 - [ ] 린트(no-console 등) 도입 또는 정책 명시.
 - [ ] 테스트 커버리지 갭(파서 엣지, 포맷터, include).
 - [ ] @vscode/test-electron 통합 테스트 1차.
-- [ ] CI 워크플로(빌드+테스트) 초안.
+- [x] CI 워크플로(빌드+테스트) — .github/workflows/ci.yml (C6, 62f5e35).
 
 ## 사이클 로그
 - C1 17:15 / 예외 경계 일관 적용(guard 전 provider) / test 77 green / de79127
@@ -47,7 +47,8 @@
 - C6 (자율틱) / completion 견고성 확인 / test 124 green
   - alias enum(lb_algo→rr/wrr) + 깊은 중첩(url) 컨텍스트 회귀 박제.
   - 거짓 경보(동작 정상)였으나 회귀 가드 2개 추가. 커밋 56e0dd9.
-  - 다음: P3 CI 워크플로(.github/workflows) — 원격 없어도 파일 준비 가능.
+  - P3 CI 워크플로 추가(.github/workflows/ci.yml): Node 20/22 build+test
+    매트릭스 + vsix 패키징 잡. .github 패키지 제외. 커밋 62f5e35.
 - C5 (자율틱) / 포맷터 안전성 검증 / test 122 green
   - 공식 샘플 16종: format 멱등 + 토큰 시그니처 불변(내용보존) 박제.
   - 포맷터가 실제 설정 구조·값을 손상 안 함 입증. 커밋 2d2bbd8.

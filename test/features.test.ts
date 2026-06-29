@@ -5,7 +5,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { hoverAt, completeAt, format, definitionAt, quickFixesFor } from "../core/features/index.js";
+import { hoverAt, completeAt, format, definitionAt, quickFixesFor, outline } from "../core/features/index.js";
 
 // ---- hover ----
 
@@ -144,4 +144,31 @@ test("quickfix: unknown directive typo suggests nearest member", () => {
   const text = "vrrp_instance VI {\n priorty 100\n}\n";
   const fixes = quickFixesFor(text, "SYNTAX_UNKNOWN_DIRECTIVE", "priorty", 1, 1);
   assert.ok(fixes.some((f) => f.replacement === "priority"));
+});
+
+// ---- outline (document symbols) ----
+
+test("outline: top-level blocks with header detail", () => {
+  const text = "global_defs {\n}\nvrrp_instance VI_1 {\n priority 100\n}\n";
+  const syms = outline(text);
+  assert.equal(syms.length, 2);
+  assert.equal(syms[0].name, "global_defs");
+  assert.equal(syms[1].name, "vrrp_instance");
+  assert.equal(syms[1].detail, "VI_1");
+});
+
+test("outline: nested blocks become children", () => {
+  const text = "virtual_server 10.0.0.1 80 {\n real_server 10.0.0.2 80 {\n }\n}\n";
+  const syms = outline(text);
+  assert.equal(syms[0].name, "virtual_server");
+  assert.equal(syms[0].detail, "10.0.0.1 80");
+  assert.equal(syms[0].children.length, 1);
+  assert.equal(syms[0].children[0].name, "real_server");
+});
+
+test("outline: directives excluded, only blocks", () => {
+  const text = "global_defs {\n router_id X\n}\n";
+  const syms = outline(text);
+  assert.equal(syms.length, 1);
+  assert.equal(syms[0].children.length, 0);
 });

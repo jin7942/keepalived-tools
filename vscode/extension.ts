@@ -14,6 +14,7 @@ import { KeepalivedCompletionProvider } from "./completion.js";
 import { KeepalivedFormatter } from "./formatter.js";
 import { KeepalivedDefinitionProvider } from "./definition.js";
 import { KeepalivedCodeActionProvider } from "./codeActions.js";
+import { KeepalivedSymbolProvider } from "./symbols.js";
 
 const LANGUAGE_ID = "keepalived";
 const selector: vscode.DocumentSelector = { language: LANGUAGE_ID };
@@ -29,6 +30,7 @@ export function activate(context: vscode.ExtensionContext): void {
     ),
     vscode.languages.registerDocumentFormattingEditProvider(selector, new KeepalivedFormatter()),
     vscode.languages.registerDefinitionProvider(selector, new KeepalivedDefinitionProvider()),
+    vscode.languages.registerDocumentSymbolProvider(selector, new KeepalivedSymbolProvider()),
     vscode.languages.registerCodeActionsProvider(selector, new KeepalivedCodeActionProvider(), {
       providedCodeActionKinds: KeepalivedCodeActionProvider.providedKinds,
     })

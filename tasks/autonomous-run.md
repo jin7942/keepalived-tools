@@ -42,4 +42,5 @@
 - [ ] CI 워크플로(빌드+테스트) 초안.
 
 ## 사이클 로그
-- (append per cycle: 시각 / 항목 / 결과 / 커밋해시)
+- C1 17:15 / 예외 경계 일관 적용(guard 전 provider) / test 77 green / de79127
+  - 감사 에이전트 2종(quality/feature) 가동 — 백로그 정밀화 대기.

@@ -33,3 +33,4 @@
 | [0012](0012-user-settings-and-diagnostics-isolation.md) | 사용자 설정 노출 + 진단 경로 격리 | Accepted |
 | [0013](0013-definition-and-quickfix.md) | 정의 이동·Quick-fix (신뢰성 우선 후보 제한) | Accepted |
 | [0014](0014-navigation-and-commands.md) | 구조 내비게이션·명령·문법 강화 | Accepted |
+| [0015](0015-robustness-hardening.md) | 견고성 강화 (코드 감사 반영) | Accepted |

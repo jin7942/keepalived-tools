@@ -11,6 +11,7 @@ import * as fs from "node:fs/promises";
 import { validateText, validateFiles, type Diagnostic, type SourceFile } from "../core/validation/index.js";
 import { parse } from "../core/parser/index.js";
 import { toVsRange, toVsSeverity } from "./convert.js";
+import { guardAsync } from "./errorBoundary.js";
 
 const DEBOUNCE_MS = 300;
 const LANGUAGE_ID = "keepalived";
@@ -46,7 +47,11 @@ export function registerDiagnostics(context: vscode.ExtensionContext): void {
       key,
       setTimeout(() => {
         timers.delete(key);
-        void runValidation(doc, collection);
+        void guardAsync(
+          "validate",
+          () => runValidation(doc, collection),
+          () => collection.delete(doc.uri)
+        );
       }, DEBOUNCE_MS)
     );
   };
@@ -66,47 +71,41 @@ export function registerDiagnostics(context: vscode.ExtensionContext): void {
   for (const doc of vscode.workspace.textDocuments) schedule(doc);
 }
 
+/** 검증 본체. 예외는 잡지 않고 전파 — 호출부 경계(guardAsync)가 처리. */
 async function runValidation(
   doc: vscode.TextDocument,
   collection: vscode.DiagnosticCollection
 ): Promise<void> {
-  // 한 문서의 예외가 기능 전체를 깨뜨리지 않도록 격리.
-  try {
-    const opts = readOptions(doc);
-    if (!opts.enable) {
-      collection.delete(doc.uri);
-      return;
-    }
-
-    const text = doc.getText();
-    // 대용량 파일 가드: 매 타이핑 전체 재파싱이 에디터를 지연시키지 않도록.
-    if (opts.maxFileSize > 0 && Buffer.byteLength(text, "utf8") > opts.maxFileSize) {
-      collection.delete(doc.uri);
-      return;
-    }
-
-    const coreOpts = {
-      reportUnused: opts.reportUnused,
-      reportMissingRequired: opts.reportMissingRequired,
-    };
-    const includes = collectIncludeGlobs(text);
-
-    if (includes.length === 0) {
-      publish(collection, doc.uri, validateText(text, coreOpts));
-      return;
-    }
-
-    // 다중 파일: include 를 resolve 해 텍스트 수집.
-    const entryPath = doc.uri.fsPath;
-    const files = await gatherFiles(entryPath, text);
-    const resultMap = validateFiles(files, entryPath, coreOpts);
-    // 진입 문서 진단만 현재 문서에 표시(다른 파일은 열릴 때 각자 검증).
-    publish(collection, doc.uri, resultMap.get(entryPath) ?? []);
-  } catch (err) {
-    // 진단 실패는 조용히 무시(stale 방지 위해 비움). 콘솔에만 기록.
-    console.error("keepalived: validation failed", err);
+  const opts = readOptions(doc);
+  if (!opts.enable) {
     collection.delete(doc.uri);
+    return;
   }
+
+  const text = doc.getText();
+  // 대용량 파일 가드: 매 타이핑 전체 재파싱이 에디터를 지연시키지 않도록.
+  if (opts.maxFileSize > 0 && Buffer.byteLength(text, "utf8") > opts.maxFileSize) {
+    collection.delete(doc.uri);
+    return;
+  }
+
+  const coreOpts = {
+    reportUnused: opts.reportUnused,
+    reportMissingRequired: opts.reportMissingRequired,
+  };
+  const includes = collectIncludeGlobs(text);
+
+  if (includes.length === 0) {
+    publish(collection, doc.uri, validateText(text, coreOpts));
+    return;
+  }
+
+  // 다중 파일: include 를 resolve 해 텍스트 수집.
+  const entryPath = doc.uri.fsPath;
+  const files = await gatherFiles(entryPath, text);
+  const resultMap = validateFiles(files, entryPath, coreOpts);
+  // 진입 문서 진단만 현재 문서에 표시(다른 파일은 열릴 때 각자 검증).
+  publish(collection, doc.uri, resultMap.get(entryPath) ?? []);
 }
 
 function collectIncludeGlobs(text: string): string[] {

@@ -27,3 +27,6 @@
 | [0006](0006-build-tooling.md) | 빌드 도구 = esbuild + tsc | Accepted |
 | [0007](0007-test-runner.md) | 테스트 러너 = node:test + tsx | Accepted |
 | [0008](0008-schema-extraction-deferred.md) | S1 추출기 vs 수작업 시드 스키마 | Accepted |
+| [0009](0009-partial-schema-silence.md) | 부분 커버리지에서 미지시어 침묵 | Accepted |
+| [0010](0010-include-resolution-in-adapter.md) | include resolve=어댑터, 순환감지=core | Accepted |
+| [0011](0011-opt-in-required-and-unused.md) | required·미참조 진단 기본 off | Accepted |

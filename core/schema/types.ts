@@ -96,6 +96,11 @@ export interface BlockSpec {
   directives?: Record<string, DirectiveSpec>;
   /** 중첩 허용 블록 이름들. */
   subBlocks?: string[];
+  /**
+   * 자유형 블록: 본문이 정형 지시어가 아니라 임의 이름/항목 나열.
+   * (예: `track_script { name1 name2 }`) 본문 미지시어 검사를 스킵한다.
+   */
+  freeform?: boolean;
   /** 동일 의미의 정규형 블록 이름. 있으면 이 블록은 alias. */
   aliasOf?: string;
   /** 조건부 컴파일 플래그. */

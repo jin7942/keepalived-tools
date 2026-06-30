@@ -46,13 +46,18 @@ export function hoverAt(
   return null;
 }
 
+/** keepalived.conf(5) man 페이지 — hover footer 공통. */
+const MAN_URL = "https://www.keepalived.org/manpage.html";
+
 function blockHover(name: string, spec: BlockSpec): string {
   const lines: string[] = [`**${name}** _(block)_`];
   if (spec.deprecated) lines.push("\n⚠️ _deprecated_");
   if (spec.aliasOf) lines.push(`\n_alias of_ \`${spec.aliasOf}\``);
+  if (spec.conditional) lines.push(`\n🔧 _requires build option_ \`${spec.conditional}\``);
   if (spec.description) lines.push(`\n${spec.description}`);
   if (spec.subBlocks?.length) lines.push(`\n**children:** ${spec.subBlocks.join(", ")}`);
   if (spec.srcRef) lines.push(`\n\`source: ${spec.srcRef}\``);
+  lines.push(`\n[keepalived.conf(5)](${MAN_URL})`);
   return lines.join("\n");
 }
 
@@ -60,6 +65,7 @@ function directiveHover(name: string, canonical: string, spec: DirectiveSpec): s
   const lines: string[] = [`**${name}**${spec.type ? ` _(${spec.type})_` : ""}`];
   if (canonical !== name) lines.push(`\n_alias of_ \`${canonical}\``);
   if (spec.deprecated) lines.push("\n⚠️ _deprecated_");
+  if (spec.conditional) lines.push(`\n🔧 _requires build option_ \`${spec.conditional}\``);
   if (spec.description) lines.push(`\n${spec.description}`);
 
   const meta: string[] = [];
@@ -75,5 +81,6 @@ function directiveHover(name: string, canonical: string, spec: DirectiveSpec): s
   if (meta.length) lines.push(`\n${meta.map((m) => `- ${m}`).join("\n")}`);
 
   if (spec.srcRef) lines.push(`\n\`source: ${spec.srcRef}\``);
+  lines.push(`\n[keepalived.conf(5)](${MAN_URL})`);
   return lines.join("\n");
 }

@@ -243,3 +243,17 @@ test("completion: deeply nested url block resolves parent context", () => {
   assert.ok(labels.includes("path"));
   assert.ok(labels.includes("status_code"));
 });
+
+// ---- hover: conditional 빌드옵션 + man 링크 ----
+
+test("hover: conditional directive shows build-option note", () => {
+  const h = hoverAt("global_defs {\n enable_snmp_vrrp on\n}\n", 1, 3);
+  assert.ok(h);
+  assert.ok(h!.markdown.includes("build option"));
+});
+
+test("hover: includes manpage link", () => {
+  const h = hoverAt("vrrp_instance VI {\n priority 100\n}\n", 1, 3);
+  assert.ok(h);
+  assert.ok(h!.markdown.includes("keepalived.conf(5)"));
+});

@@ -44,6 +44,9 @@
 ## 사이클 로그
 - C1 17:15 / 예외 경계 일관 적용(guard 전 provider) / test 77 green / de79127
   - 감사 에이전트 2종(quality/feature) 가동 — 백로그 정밀화 대기.
+- C9 (자율틱) / hover 빌드옵션+man 링크 / test 126 green
+  - conditional(_WITH_SNMP_ 등) hover 노출 + keepalived.conf(5) 링크. 커밋 ff1d159.
+  - CHANGELOG hover/CI 항목 반영.
 - C8 (자율틱) / P2 설정 UI order 부여 / test 124 green
   - configuration 4종에 order 1~4 (논리 순서). 커밋 38d491a.
   - 백로그 대부분 소진. 남은: NICE(포맷터 range/hover manpage), P3 통합테스트

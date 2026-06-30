@@ -12,6 +12,8 @@
 - 명령 팔레트: Show Schema Version / Validate Active File / Format Document.
 - 문법 강조 확장: `~SEQ()` 시퀀스, IPv4/IPv6/CIDR, BOOL 키워드 (RFP §3.1).
 - 스니펫 추가: vrrp_sync_group, unicast vrrp_instance, virtual_server_group, include.
+- Hover 에 빌드옵션(conditional, 예: `_WITH_SNMP_`) 안내 + keepalived.conf(5) man 링크.
+- CI 워크플로(GitHub Actions): Node 20/22 build+test, vsix 패키징.
 
 ### Changed
 - 예외 처리를 어댑터 경계(guard/guardAsync)로 일원화 — 발생 지점 try-catch 제거.

@@ -51,6 +51,9 @@
 ## 사이클 로그
 - C1 17:15 / 예외 경계 일관 적용(guard 전 provider) / test 77 green / de79127
   - 감사 에이전트 2종(quality/feature) 가동 — 백로그 정밀화 대기.
+- C10 (자율틱) / 버전 모순 발견·알림 + 퍼징 견고성 / test 127 green
+  - 버전 모순(1.0.0 vs 0.23.0) 사용자 결정 요청(PushNotification).
+  - 비정상 입력 20종 퍼징: 전 파이프라인 throw 0 박제. 커밋 f75da78.
 - C9 (자율틱) / hover 빌드옵션+man 링크 / test 126 green
   - conditional(_WITH_SNMP_ 등) hover 노출 + keepalived.conf(5) 링크. 커밋 ff1d159.
   - CHANGELOG hover/CI 항목 반영.

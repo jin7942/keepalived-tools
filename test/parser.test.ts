@@ -168,3 +168,26 @@ test("parser: multibyte argument counted in UTF-16 columns", () => {
   const dir = blk.body[0] as Directive;
   assert.equal(dir.range.start.col, 1);
 });
+
+// ---- 견고성 회귀: 비정상 입력에 크래시·무한루프 없음 ----
+
+test("robustness: pathological inputs never throw across the pipeline", async () => {
+  const { validateText } = await import("../core/validation/index.js");
+  const { format, completeAt, hoverAt } = await import("../core/features/index.js");
+  const evil = [
+    "", " ", "\n\n\n", "{", "}", "}}}{{{", "{".repeat(500),
+    "a".repeat(10000), "vrrp_instance " + "x".repeat(5000) + " {",
+    '"unterminated', "vrrp_instance VI {\n".repeat(200) + "}".repeat(200),
+    "global_defs {", "###\n!!!\n", "include", "include ",
+    "= = = = =", "vrrp_instance\t\t\tVI\t{\n}", "🔥 { 💀 }", "a {".repeat(100),
+  ];
+  for (const s of evil) {
+    assert.doesNotThrow(() => {
+      parse(s);
+      validateText(s);
+      format(s);
+      completeAt(s, 0, 0);
+      hoverAt(s, 0, 0);
+    }, `threw on input (len ${s.length})`);
+  }
+});

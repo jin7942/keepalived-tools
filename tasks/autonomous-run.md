@@ -10,6 +10,12 @@
 - 이번 48h 작업물 = **1.1.0** (MINOR) 릴리스. package.json/CHANGELOG 동기화 완료.
 - 배포 대상: VS Code Marketplace 게시. publisher/PAT는 사용자 자산(안내만).
 
+## 배포 준비물 (README에서 이관 — 내부 TODO, 배포판 노출 금지)
+- [ ] `publisher` 를 실제 등록된 Marketplace publisher ID로 교체 (`package.json`).
+- [ ] PAT: 전역 PAT 2026-12-01 폐지 → Entra ID 게시 경로 사용.
+- [ ] (선택) 스크린샷/GIF 추가 — 마켓 랜딩 시각 자료.
+- [x] README 영문화 (2026-07-18). CHANGELOG 영문 병기는 선택으로 잔류.
+
 ## 진행 규율 (매 사이클)
 1. 한 항목 선택 → 설계(필요시 ADR) → 구현 → 테스트 → 커밋.
 2. 커밋 단위 작게. 항상 tsc+test green 후 커밋.

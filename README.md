@@ -1,75 +1,73 @@
 # keepalived-tools
 
-`keepalived.conf` 를 위한 VSCode 익스텐션 — 문법 강조, 검증, 자동완성, hover, 정의 이동, quick-fix, 스니펫, 포맷터.
+A VSCode extension for `keepalived.conf` — syntax highlighting, validation, completion, hover, go-to-definition, quick-fix, snippets, and formatting.
 
-keepalived 설치 없이 모든 플랫폼에서 동작한다(자체 검증 엔진).
+Works on every platform without a keepalived install (self-contained validation engine).
 
-## 기능
+## Features
 
-| 기능 | 설명 |
-|------|------|
-| **문법 강조** | 블록·지시어·문자열·변수·주석(`#` 와 `!` 둘 다) |
-| **검증** | 4층: 구문(괄호·미지시어·중첩) / 타입(범위·enum·IP·포트) / 의미(참조 무결성·중복) / include 다중파일 |
-| **자동완성** | 현재 블록의 지시어·자식 블록·enum 허용값 |
-| **Hover** | 지시어 설명·타입·범위·허용값·기본값·출처·빌드옵션·man 링크 |
-| **정의 이동** | `track_script chk` 등 참조에서 정의(`vrrp_script chk`)로 점프 (F12) |
-| **아웃라인** | 블록 구조를 브레드크럼·아웃라인·Ctrl+Shift+O 로 탐색 |
-| **include 이동** | `include` 경로를 클릭해 대상 파일로 점프 (DocumentLink) |
-| **Quick-fix** | enum 오타·미지시어에 "did you mean …?" 교정 제안 |
-| **명령** | Show Schema Version / Validate Active File / Format Document (팔레트) |
-| **스니펫** | `vrrp_instance`, `virtual_server`, `vrrp_script` 등 골격 |
-| **포맷터** | 중괄호 깊이 기반 재들여쓰기 (주석·빈 줄 보존). 저장 시 자동 포맷 지원 |
+| Feature | Description |
+|---------|-------------|
+| **Syntax highlighting** | Blocks, directives, strings, variables, comments (both `#` and `!`) |
+| **Validation** | 4 layers: syntax (braces / unknown directives / nesting) / type (range · enum · IP · port) / semantic (reference integrity · duplicates) / multi-file `include` |
+| **Completion** | Directives, child blocks, and enum values for the current block |
+| **Hover** | Directive description, type, range, allowed values, default, source, build option, man link |
+| **Go to Definition** | Jump from a reference (`track_script chk`) to its definition (`vrrp_script chk`) — F12 |
+| **Outline** | Navigate block structure via breadcrumbs, outline, and Ctrl+Shift+O |
+| **Include navigation** | Click an `include` path to jump to the target file (DocumentLink) |
+| **Quick-fix** | "Did you mean …?" corrections for enum typos and unknown directives |
+| **Commands** | Show Schema Version / Validate Active File / Format Document (Command Palette) |
+| **Snippets** | Skeletons for `vrrp_instance`, `virtual_server`, `vrrp_script`, and more |
+| **Formatter** | Brace-depth reindentation (preserves comments and blank lines). Format-on-save supported |
 
-## 신뢰성 우선
+## Reliability first
 
-오탐(false positive)은 신뢰를 깎는다. 확실한 것만 error, 불확실하면 warning/info,
-모르면 침묵한다(`$VAR`·`@조건부`·`~SEQ` 값은 검증 면제). 필수 누락·미참조 같은
-편집 중 오탐이 잦은 검사는 기본 off (아래 설정으로 on).
+False positives erode trust. Only certain problems are flagged as errors; anything
+uncertain is a warning/info, and the unknown stays silent (`$VAR`, `@conditional`,
+and `~SEQ` values are exempt from validation). Checks prone to false positives while
+editing — missing-required and unused-symbol — are off by default (enable them via
+settings below).
 
-quick-fix 도 같은 원칙 — 편집거리가 가까운 오타 수준 후보만 제안하고,
-멀리 떨어진 후보는 들이밀지 않는다.
+Quick-fix follows the same principle: it only suggests close, typo-level candidates
+and never pushes distant guesses.
 
-## 설정 (Settings)
+## Settings
 
-| 설정 | 기본값 | 설명 |
-|------|--------|------|
-| `keepalived.validation.enable` | `true` | 진단 전체 on/off |
-| `keepalived.validation.reportMissingRequired` | `false` | 필수 지시어 누락 진단 (편집 중 오탐 방지로 기본 off) |
-| `keepalived.validation.reportUnused` | `false` | 정의됐으나 미참조된 심볼 진단 (미참조도 합법이라 기본 off) |
-| `keepalived.validation.maxFileSize` | `1048576` | 이 바이트 초과 파일은 검증 생략(에디터 응답성). `0` 이면 무제한 |
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `keepalived.validation.enable` | `true` | Toggle all diagnostics on/off |
+| `keepalived.validation.reportMissingRequired` | `false` | Report missing required directives (off by default to avoid mid-edit false positives) |
+| `keepalived.validation.reportUnused` | `false` | Report defined-but-unreferenced symbols (off by default — unreferenced is legal) |
+| `keepalived.validation.maxFileSize` | `1048576` | Skip validation for files larger than this many bytes (editor responsiveness). `0` means unlimited |
 
-## 동작 원리
+## How it works
 
-- keepalived 2.3.4 소스에서 키워드·타입·범위를 추출/검증해 단일 스키마
-  (`schema/keepalived-spec.merged.json`)로 박제.
-- 검증 로직은 VSCode 비의존 순수 `core` 모듈 → 추후 LSP 어댑터로 재사용 가능.
+- Keywords, types, and ranges are extracted from the keepalived 2.3.4 source and
+  frozen into a single schema (`schema/keepalived-spec.merged.json`).
+- The validation logic lives in a pure `core` module with no VSCode dependency, so
+  it can be reused behind an LSP adapter later.
 
-상세 설계: `docs/` (planning / architecture / ADR).
+See `docs/` (planning / architecture / ADR) for the detailed design.
 
-## 알려진 한계
+## Known limitations
 
-- 스키마는 keepalived **2.3.4** 기준 수작업 시드. 흔한 블록은 완전 검증(`complete`),
-  드문 블록은 미지시어를 침묵 처리해 오탐을 피한다(점진 확대 중, ADR-0009).
-- 조건부 컴파일(`_WITH_SNMP_`, `_WITH_BFD_` 등) 지시어는 빌드에 따라 존재 여부가 다르다 — 진단하지 않는다.
-- 정의 이동은 현재 단일 파일 기준. include 크로스파일 점프는 향후.
+- The schema is a hand-seeded snapshot of keepalived **2.3.4**. Common blocks are
+  fully validated (`complete`); rarer blocks silently accept unknown directives to
+  avoid false positives (expanding gradually — ADR-0009).
+- Conditional-compilation directives (`_WITH_SNMP_`, `_WITH_BFD_`, etc.) exist or not
+  depending on the build — they are not diagnosed.
+- Go-to-definition is currently single-file. Cross-file jumps via `include` are future work.
 
-## 개발
+## Development
 
 ```bash
 npm install
-npm run build      # 스키마 merge → 문법 생성 → 타입체크 → 번들
-npm test           # core 단위 테스트 (node:test + tsx)
-npm run package    # .vsix 패키징
+npm run build      # schema merge → grammar gen → typecheck → bundle
+npm test           # core unit tests (node:test + tsx)
+npm run package    # .vsix packaging
 ```
 
-## 라이선스
+## License
 
-GPL-2.0-or-later. keepalived 소스를 사실 추출·로직 참조에 활용하므로 동일 라이선스를 따른다.
-저작권 고지는 [`NOTICE`](NOTICE) 참조.
-
-## 배포 전 준비물 (마켓플레이스)
-
-- [ ] `publisher` 를 실제 등록된 Marketplace publisher ID로 교체 (`package.json`).
-- [ ] PAT: 전역 PAT 2026-12-01 폐지 → Entra ID 게시 경로 사용.
-- [ ] (선택) 스크린샷/GIF 추가 — 마켓 랜딩 시각 자료.
-- [ ] (선택) README/CHANGELOG 영문 병기 — 글로벌 사용자 대상.
+GPL-2.0-or-later. keepalived source is used for fact extraction and logic reference,
+so the same license applies. See [`NOTICE`](NOTICE) for copyright attribution.

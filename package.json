@@ -4,7 +4,7 @@
   "description": "Syntax highlighting, validation, completion, hover, snippets and formatting for keepalived.conf",
   "version": "1.1.0",
   "license": "GPL-2.0-or-later",
-  "publisher": "keepalived-tools",
+  "publisher": "jin7942",
   "icon": "images/icon.png",
   "galleryBanner": {
     "color": "#185663",

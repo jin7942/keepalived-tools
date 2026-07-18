@@ -2,9 +2,12 @@
 
 본 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/) 을 따른다.
 
-## [Unreleased] (0.23.0 작업 브랜치)
+## [Unreleased]
+
+## [1.1.0] - 2026-07-18
 
 48시간 자율 품질 강화. 즉시 운영 가능·제품급 안정성 목표.
+(작업 브랜치 `0.23.0` — 브랜치 식별자일 뿐, 코드 버전은 1.x 연속.)
 
 ### Added
 - 문서 아웃라인(DocumentSymbol): 브레드크럼·Ctrl+Shift+O·접기 향상.

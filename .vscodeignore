@@ -20,3 +20,4 @@ schema/overrides.json
 schema/keepalived-spec.merged.json
 **/.DS_Store
 .github/**
+images/icon-512.png

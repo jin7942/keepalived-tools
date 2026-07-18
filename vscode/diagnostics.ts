@@ -8,9 +8,11 @@
 import * as vscode from "vscode";
 import * as path from "node:path";
 import * as fs from "node:fs/promises";
-import { validateText, validateFiles, type Diagnostic, type SourceFile } from "../core/validation/index.js";
+import { validateText, validateFiles, collectIncludes, type Diagnostic, type SourceFile } from "../core/validation/index.js";
 import { parse } from "../core/parser/index.js";
 import { toVsRange, toVsSeverity } from "./convert.js";
+import { guardAsync } from "./errorBoundary.js";
+import { resolveGlob } from "./includeResolver.js";
 
 const DEBOUNCE_MS = 300;
 const LANGUAGE_ID = "keepalived";
@@ -31,7 +33,10 @@ function readOptions(doc: vscode.TextDocument): {
   };
 }
 
-export function registerDiagnostics(context: vscode.ExtensionContext): void {
+/** 활성 문서를 디바운스 없이 즉시 재검증하는 함수. validate 명령이 호출. */
+export type RevalidateNow = (doc: vscode.TextDocument) => void;
+
+export function registerDiagnostics(context: vscode.ExtensionContext): RevalidateNow {
   const collection = vscode.languages.createDiagnosticCollection("keepalived");
   context.subscriptions.push(collection);
 
@@ -46,7 +51,11 @@ export function registerDiagnostics(context: vscode.ExtensionContext): void {
       key,
       setTimeout(() => {
         timers.delete(key);
-        void runValidation(doc, collection);
+        void guardAsync(
+          "validate",
+          () => runValidation(doc, collection),
+          () => collection.delete(doc.uri)
+        );
       }, DEBOUNCE_MS)
     );
   };
@@ -64,54 +73,59 @@ export function registerDiagnostics(context: vscode.ExtensionContext): void {
 
   // 이미 열린 문서.
   for (const doc of vscode.workspace.textDocuments) schedule(doc);
+
+  // 명령용 즉시 재검증(디바운스 우회).
+  return (doc: vscode.TextDocument) => {
+    if (doc.languageId !== LANGUAGE_ID) return;
+    const existing = timers.get(doc.uri.toString());
+    if (existing) clearTimeout(existing);
+    void guardAsync(
+      "validate",
+      () => runValidation(doc, collection),
+      () => collection.delete(doc.uri)
+    );
+  };
 }
 
+/** 검증 본체. 예외는 잡지 않고 전파 — 호출부 경계(guardAsync)가 처리. */
 async function runValidation(
   doc: vscode.TextDocument,
   collection: vscode.DiagnosticCollection
 ): Promise<void> {
-  // 한 문서의 예외가 기능 전체를 깨뜨리지 않도록 격리.
-  try {
-    const opts = readOptions(doc);
-    if (!opts.enable) {
-      collection.delete(doc.uri);
-      return;
-    }
-
-    const text = doc.getText();
-    // 대용량 파일 가드: 매 타이핑 전체 재파싱이 에디터를 지연시키지 않도록.
-    if (opts.maxFileSize > 0 && Buffer.byteLength(text, "utf8") > opts.maxFileSize) {
-      collection.delete(doc.uri);
-      return;
-    }
-
-    const coreOpts = {
-      reportUnused: opts.reportUnused,
-      reportMissingRequired: opts.reportMissingRequired,
-    };
-    const includes = collectIncludeGlobs(text);
-
-    if (includes.length === 0) {
-      publish(collection, doc.uri, validateText(text, coreOpts));
-      return;
-    }
-
-    // 다중 파일: include 를 resolve 해 텍스트 수집.
-    const entryPath = doc.uri.fsPath;
-    const files = await gatherFiles(entryPath, text);
-    const resultMap = validateFiles(files, entryPath, coreOpts);
-    // 진입 문서 진단만 현재 문서에 표시(다른 파일은 열릴 때 각자 검증).
-    publish(collection, doc.uri, resultMap.get(entryPath) ?? []);
-  } catch (err) {
-    // 진단 실패는 조용히 무시(stale 방지 위해 비움). 콘솔에만 기록.
-    console.error("keepalived: validation failed", err);
+  const opts = readOptions(doc);
+  if (!opts.enable) {
     collection.delete(doc.uri);
+    return;
   }
+
+  const text = doc.getText();
+  // 대용량 파일 가드: 매 타이핑 전체 재파싱이 에디터를 지연시키지 않도록.
+  if (opts.maxFileSize > 0 && Buffer.byteLength(text, "utf8") > opts.maxFileSize) {
+    collection.delete(doc.uri);
+    return;
+  }
+
+  const coreOpts = {
+    reportUnused: opts.reportUnused,
+    reportMissingRequired: opts.reportMissingRequired,
+  };
+  const includes = collectIncludeGlobs(text);
+
+  if (includes.length === 0) {
+    publish(collection, doc.uri, validateText(text, coreOpts));
+    return;
+  }
+
+  // 다중 파일: include 를 resolve 해 텍스트 수집.
+  const entryPath = doc.uri.fsPath;
+  const files = await gatherFiles(entryPath, text);
+  const resultMap = validateFiles(files, entryPath, coreOpts);
+  // 진입 문서 진단만 현재 문서에 표시(다른 파일은 열릴 때 각자 검증).
+  publish(collection, doc.uri, resultMap.get(entryPath) ?? []);
 }
 
 function collectIncludeGlobs(text: string): string[] {
-  const { ast } = parse(text);
-  return ast.body.filter((n) => n.type === "include").map((n) => (n as { glob: string }).glob);
+  return collectIncludes(parse(text).ast).map((n) => n.glob);
 }
 
 /**
@@ -129,78 +143,47 @@ async function gatherFiles(entryPath: string, entryText: string): Promise<Source
     seen.set(p, { path: p, text, resolvedIncludes: resolved });
     for (const inc of resolved) {
       if (!seen.has(inc)) {
-        try {
-          const t = await fs.readFile(inc, "utf8");
-          queue.push({ p: inc, text: t });
-        } catch {
-          // 못 읽는 파일은 core 가 NOT_FOUND 로 처리.
-        }
+        const t = await readIncluded(inc);
+        if (t !== undefined) queue.push({ p: inc, text: t });
+        // 못 읽는 파일은 core 가 NOT_FOUND 로 처리.
       }
     }
   }
   return [...seen.values()];
 }
 
-async function resolveIncludes(filePath: string, text: string): Promise<string[]> {
-  const baseDir = path.dirname(filePath);
-  const { ast } = parse(text);
-  const out: string[] = [];
-  for (const node of ast.body) {
-    if (node.type !== "include") continue;
-    const glob = (node as { glob: string }).glob;
-    const abs = path.isAbsolute(glob) ? glob : path.join(baseDir, glob);
-    out.push(...(await expandGlob(abs)));
-  }
-  return out;
-}
+/** path -> {mtimeMs, text}. fs 재읽기·재파싱 비용 절감(H2). */
+const fileCache = new Map<string, { mtimeMs: number; text: string }>();
 
 /**
- * glob 확장. 지원: `dir/*.conf`(단일 디렉토리), `dir/** /*.conf`(재귀).
- * glob 문자 없으면 경로 그대로. keepalived 의 흔한 include 패턴을 커버한다.
+ * 포함 파일 텍스트를 읽는다.
+ * 1) 열린 VSCode 문서가 있으면 그 버퍼(미저장 편집 반영).
+ * 2) 아니면 fs — mtime 캐시로 변경 없으면 재읽기 생략.
+ * 못 읽으면 undefined.
  */
-async function expandGlob(pattern: string): Promise<string[]> {
-  if (!pattern.includes("*")) return [pattern];
+async function readIncluded(absPath: string): Promise<string | undefined> {
+  const uri = vscode.Uri.file(absPath);
+  const open = vscode.workspace.textDocuments.find((d) => d.uri.fsPath === absPath);
+  if (open) return open.getText();
 
-  if (pattern.includes("**")) {
-    // 재귀: ** 이전을 루트, 이후 basename 패턴으로 매칭.
-    const idx = pattern.indexOf("**");
-    const root = path.dirname(pattern.slice(0, idx)) || pattern.slice(0, idx) || "/";
-    const base = path.basename(pattern);
-    const re = globToRegExp(base);
-    return walkDir(root, re);
-  }
-
-  const dir = path.dirname(pattern);
-  const re = globToRegExp(path.basename(pattern));
   try {
-    const entries = await fs.readdir(dir);
-    return entries.filter((e) => re.test(e)).map((e) => path.join(dir, e));
+    const stat = await fs.stat(uri.fsPath);
+    const cached = fileCache.get(absPath);
+    if (cached && cached.mtimeMs === stat.mtimeMs) return cached.text;
+    const text = await fs.readFile(absPath, "utf8");
+    fileCache.set(absPath, { mtimeMs: stat.mtimeMs, text });
+    return text;
   } catch {
-    return [];
+    fileCache.delete(absPath);
+    return undefined;
   }
 }
 
-function globToRegExp(base: string): RegExp {
-  return new RegExp("^" + base.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*") + "$");
-}
-
-/** 디렉토리를 재귀 워크하며 basename 이 re 에 맞는 파일 수집(깊이 제한). */
-async function walkDir(root: string, re: RegExp, depth = 0): Promise<string[]> {
-  if (depth > 16) return []; // 폭주 방지.
+async function resolveIncludes(filePath: string, text: string): Promise<string[]> {
+  const baseDir = path.dirname(filePath);
   const out: string[] = [];
-  let entries: import("node:fs").Dirent[];
-  try {
-    entries = await fs.readdir(root, { withFileTypes: true });
-  } catch {
-    return [];
-  }
-  for (const e of entries) {
-    const full = path.join(root, e.name);
-    if (e.isDirectory()) {
-      out.push(...(await walkDir(full, re, depth + 1)));
-    } else if (re.test(e.name)) {
-      out.push(full);
-    }
+  for (const node of collectIncludes(parse(text).ast)) {
+    out.push(...(await resolveGlob(baseDir, node.glob)));
   }
   return out;
 }

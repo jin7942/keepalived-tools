@@ -21,6 +21,7 @@ import { validateInclude, type SourceFile } from "./include.js";
 
 export * from "./diagnostic.js";
 export type { SourceFile } from "./include.js";
+export { collectIncludes } from "./walk.js";
 
 export interface ValidateOptions {
   schema?: SchemaIndex;

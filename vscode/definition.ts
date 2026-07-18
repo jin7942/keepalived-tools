@@ -8,14 +8,17 @@
 import * as vscode from "vscode";
 import { definitionAt } from "../core/features/index.js";
 import { toVsRange } from "./convert.js";
+import { guard } from "./errorBoundary.js";
 
 export class KeepalivedDefinitionProvider implements vscode.DefinitionProvider {
   provideDefinition(
     document: vscode.TextDocument,
     position: vscode.Position
   ): vscode.ProviderResult<vscode.Definition> {
-    const def = definitionAt(document.getText(), position.line, position.character);
-    if (!def) return undefined;
-    return new vscode.Location(document.uri, toVsRange(def.range));
+    return guard("definition", () => {
+      const def = definitionAt(document.getText(), position.line, position.character);
+      if (!def) return undefined;
+      return new vscode.Location(document.uri, toVsRange(def.range));
+    }, undefined);
   }
 }

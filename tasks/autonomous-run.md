@@ -1,0 +1,93 @@
+# 48h 자율주행 운영 보드
+
+> 시작: 2026-06-29 ~17:10. 종료 목표: 2026-07-01 ~17:10.
+> 브랜치: `0.23.0` 단일. 커밋 누적. 결정 자율 + ADR 문서화.
+> 목표: 분석/RFP 전부 구현, 즉시 운영 가능·제품급 안정성, UI/UX 포함.
+> 원칙: 가라 금지. 기획→설계→구현→리뷰 반복. 매 사이클 빌드+테스트 green 유지.
+
+## 버전 결정 (해소됨 2026-07-18)
+- 사용자 선택: 해석 B — 0.23.0은 브랜치 식별자, 코드는 1.x 연속.
+- 이번 48h 작업물 = **1.1.0** (MINOR) 릴리스. package.json/CHANGELOG 동기화 완료.
+- 배포 대상: VS Code Marketplace 게시. publisher/PAT는 사용자 자산(안내만).
+
+## 진행 규율 (매 사이클)
+1. 한 항목 선택 → 설계(필요시 ADR) → 구현 → 테스트 → 커밋.
+2. 커밋 단위 작게. 항상 tsc+test green 후 커밋.
+3. 문서 최신화: README/CHANGELOG/ADR/이 보드.
+4. 가라 금지: 소스 실측·직접 실행으로 검증.
+
+## 백로그 (우선순위)
+
+### P0 — 안정성·정확성 (제품급 핵심)
+- [ ] 전 provider 예외 경계(guard) 일관 적용 + 로깅 채널.
+- [ ] core 도메인 에러 계층 정리(파서/스키마) — throw 지점 명확화.
+- [ ] 대용량/엣지 입력 견고성: 빈 파일, BOM, CRLF, 탭, 깊은 중첩, 거대 토큰.
+- [ ] include 경로 보안/순환/심링크/존재X 견고성 재점검.
+- [ ] 진단 위치(range) 정확도 감사 — off-by-one, 멀티바이트.
+
+### P1 — 기능 완성도 (RFP/분석자료)
+- [ ] 스키마 커버리지 추가 확대 + 흔한 블록 complete:true 안전 부여.
+- [ ] 값 타입 검증 강화: cidr/ip6/timer 단위/포트범위/ref 다중.
+- [ ] 포맷터 품질: range 포맷, on-type, 정렬 옵션, 멱등성 보장 확대.
+- [ ] completion 문맥 정밀화: enum/ref 후보, 블록 스니펫, 트리거.
+- [ ] hover 품질: 출처 링크, 기본값, 예시.
+- [ ] 명령 팔레트 commands(검증/포맷/스키마버전).
+
+### P2 — UI/UX
+- [ ] 진단 메시지 문구 일관성·친절성 감사(코드별 카피 정리).
+- [ ] 설정 UI 그룹/순서/설명 정리.
+- [ ] README 스크린샷/GIF 자리 + 사용 흐름.
+- [ ] 스니펫 확충(sync_group/static_*/health checks).
+- [ ] 아이콘/배너 톤 재점검.
+
+### P3 — 품질 인프라
+- [ ] 린트(no-console 등) 도입 또는 정책 명시.
+- [ ] 테스트 커버리지 갭(파서 엣지, 포맷터, include).
+- [ ] @vscode/test-electron 통합 테스트 1차.
+- [x] CI 워크플로(빌드+테스트) — .github/workflows/ci.yml (C6, 62f5e35).
+
+## 사이클 로그
+- C1 17:15 / 예외 경계 일관 적용(guard 전 provider) / test 77 green / de79127
+  - 감사 에이전트 2종(quality/feature) 가동 — 백로그 정밀화 대기.
+- C11 (자율틱) / 통합 정합성 점검 / test 127 green, .vsix 48.7KB
+  - provider 9종·commands 3종·스키마 38블록 = 문서 일치 확인.
+  - README Hover 행 갱신(빌드옵션·man). 패키징 성공.
+  - 백로그 실질 소진. 버전 결정 사용자 대기. 다음 틱 새 가치 없으면 스케일다운.
+- C10 (자율틱) / 버전 모순 발견·알림 + 퍼징 견고성 / test 127 green
+  - 버전 모순(1.0.0 vs 0.23.0) 사용자 결정 요청(PushNotification).
+  - 비정상 입력 20종 퍼징: 전 파이프라인 throw 0 박제. 커밋 f75da78.
+- C9 (자율틱) / hover 빌드옵션+man 링크 / test 126 green
+  - conditional(_WITH_SNMP_ 등) hover 노출 + keepalived.conf(5) 링크. 커밋 ff1d159.
+  - CHANGELOG hover/CI 항목 반영.
+- C8 (자율틱) / P2 설정 UI order 부여 / test 124 green
+  - configuration 4종에 order 1~4 (논리 순서). 커밋 38d491a.
+  - 백로그 대부분 소진. 남은: NICE(포맷터 range/hover manpage), P3 통합테스트
+    (@vscode/test-electron — 무거운 인프라, 도입 신중), 사용자자산(스크린샷/publisher).
+- C7 (자율틱) / P2 진단 메시지 일관성 감사 / test 124 green
+  - 전 진단 메시지 수집·검토: 대체로 일관. timer 비음수 값 따옴표 누락,
+    범위 메시지 비통일 2곳 → 'out of range (...), got N' 통일. 커밋 3127798.
+- C6 (자율틱) / completion 견고성 확인 / test 124 green
+  - alias enum(lb_algo→rr/wrr) + 깊은 중첩(url) 컨텍스트 회귀 박제.
+  - 거짓 경보(동작 정상)였으나 회귀 가드 2개 추가. 커밋 56e0dd9.
+  - P3 CI 워크플로 추가(.github/workflows/ci.yml): Node 20/22 build+test
+    매트릭스 + vsix 패키징 잡. .github 패키지 제외. 커밋 62f5e35.
+- C5 (자율틱) / 포맷터 안전성 검증 / test 122 green
+  - 공식 샘플 16종: format 멱등 + 토큰 시그니처 불변(내용보존) 박제.
+  - 포맷터가 실제 설정 구조·값을 손상 안 함 입증. 커밋 2d2bbd8.
+- C4 (자율틱) / 공식 샘플 25종 검증 → 거짓양성 1건 발견·수정 / test 106 green
+  - status_code 다중·범위(200-299) 단일 int 오인 → type 제거(name-only).
+  - 공식 doc/samples 16종 fixture 회귀: error 진단 0 보장 (신뢰성 결정 증거).
+  - 커밋 8e02a6b.
+- C3 ~17:40 / quality 감사 전면 반영(C1·H1·H2·M1~M4·L1~L3) / test 90 green
+  - C1 중첩include, H1 BOM, H2 캐시/버퍼, M1 순환진단, M2 NEWLINE,
+    M3 심볼키, M4 glob/심링크, L1~L3 정리. CRLF·멀티바이트 회귀.
+  - ADR-0015, CHANGELOG Fixed 섹션, 운영보드 갱신.
+  - 커밋: 8bdeba5~19a46e2.
+- C2 17:30~ / feature 감사 반영: MUST 4종 + SHOULD 일부 / test 82 green
+  - 아웃라인(DocumentSymbol) 595f3e3
+  - include 클릭이동(DocumentLink)+resolver 추출 5486b85
+  - commands(팔레트) + RevalidateNow
+  - 문법 ~SEQ/IP/CIDR/BOOL
+  - 스니펫 4종
+  - ADR-0014, CHANGELOG/README 갱신
+  - 남은 MUST: publisher(사용자 자산). quality 감사 응답 대기 → 다음 P0 견고성.

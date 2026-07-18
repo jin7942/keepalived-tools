@@ -4,14 +4,17 @@
 
 import * as vscode from "vscode";
 import { completeAt, type CompletionItem, type CompletionKind } from "../core/features/index.js";
+import { guard } from "./errorBoundary.js";
 
 export class KeepalivedCompletionProvider implements vscode.CompletionItemProvider {
   provideCompletionItems(
     document: vscode.TextDocument,
     position: vscode.Position
   ): vscode.ProviderResult<vscode.CompletionItem[]> {
-    const items = completeAt(document.getText(), position.line, position.character);
-    return items.map((i) => toVsItem(i));
+    return guard("completion", () => {
+      const items = completeAt(document.getText(), position.line, position.character);
+      return items.map((i) => toVsItem(i));
+    }, []);
   }
 }
 

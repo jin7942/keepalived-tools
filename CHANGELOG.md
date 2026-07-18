@@ -2,6 +2,37 @@
 
 본 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/) 을 따른다.
 
+## [Unreleased]
+
+## [1.1.0] - 2026-07-18
+
+48시간 자율 품질 강화. 즉시 운영 가능·제품급 안정성 목표.
+(작업 브랜치 `0.23.0` — 브랜치 식별자일 뿐, 코드 버전은 1.x 연속.)
+
+### Added
+- 문서 아웃라인(DocumentSymbol): 브레드크럼·Ctrl+Shift+O·접기 향상.
+- include 클릭 이동(DocumentLink): glob resolve 해 파일로 점프.
+- 명령 팔레트: Show Schema Version / Validate Active File / Format Document.
+- 문법 강조 확장: `~SEQ()` 시퀀스, IPv4/IPv6/CIDR, BOOL 키워드 (RFP §3.1).
+- 스니펫 추가: vrrp_sync_group, unicast vrrp_instance, virtual_server_group, include.
+- Hover 에 빌드옵션(conditional, 예: `_WITH_SNMP_`) 안내 + keepalived.conf(5) man 링크.
+- CI 워크플로(GitHub Actions): Node 20/22 build+test, vsix 패키징.
+
+### Changed
+- 예외 처리를 어댑터 경계(guard/guardAsync)로 일원화 — 발생 지점 try-catch 제거.
+- 전 provider 예외 격리 + 출력 채널 로깅.
+- include resolve 로직을 공유 모듈로 추출(진단·링크 일치), 심링크 순환 방지.
+- include 포함 파일 mtime 캐시 + 열린 버퍼 우선(편집 응답성·미저장 편집 반영).
+
+### Fixed
+- 블록 안 중첩 `include` 가 무시되던 문제(거짓 미정의 참조 경고) — 재귀 수집.
+- 선두 BOM(U+FEFF)이 첫 키워드를 오염시키던 문제 — lexer 스킵.
+- 순환 include 진단이 중복·혼란 메시지로 뜨던 문제 — 1회 보고+전체 경로.
+- glob `**` 패턴이 중간 디렉토리 구조를 잃던 문제 — 전체 경로 매칭.
+- NEWLINE 토큰 end 위치 off-by-one, 심볼 병합 키 구분자 충돌(따옴표 이름).
+- `status_code` 다중·범위 표기(`200-299 400-499`)를 단일 int 로 오인해 거짓 error.
+  → keepalived 2.3.4 공식 샘플 25종 전수 검증 시 거짓 양성 0 확인.
+
 ## [1.0.0] - 2026-06-29
 
 첫 정식 릴리스. 0.1.0 의 기능 토대 위에 정식 출시 품질 보강.

@@ -38,7 +38,8 @@ class Parser {
   constructor(private readonly tokens: Token[]) {}
 
   parseFile(): ParseResult {
-    const start = this.peek().start;
+    // 파일은 항상 0:0 에서 시작(주석/공백 전용 파일도 일관).
+    const start: Position = { line: 0, col: 0, offset: 0 };
     const body = this.parseChildren(null);
     const end = this.prevEnd();
     const ast: ConfFile = { range: { start, end }, body };
@@ -87,7 +88,6 @@ class Parser {
     if (first.type === "WORD" && first.value.startsWith("@")) {
       condition = first.value.slice(1); // "@high" → "high", "@^main" → "^main"
       this.next();
-      this.skipInlineNewlinesIfBraceFollows(); // 접두사만 있고 줄바꿈인 경우 방지
     }
 
     const head = this.peek();
@@ -222,12 +222,6 @@ class Parser {
     let j = this.i;
     while (this.tokens[j]?.type === "NEWLINE") j++;
     return this.tokens[j]?.type === "LBRACE";
-  }
-
-  /** @접두사 뒤가 곧장 NEWLINE 이면 그 줄은 무효 — 다음 비빈 토큰까지 둔다(보수적). */
-  private skipInlineNewlinesIfBraceFollows(): void {
-    // 현재 구현은 접두사 직후 토큰을 그대로 head 로 사용하므로 별도 처리 불필요.
-    // 향후 멀티라인 조건부 확장 대비 훅으로 남겨둔다.
   }
 
   private prevEnd(): Position {

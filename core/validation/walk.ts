@@ -7,7 +7,7 @@
  * 설계 근거: docs/01-architecture/03-validation.md §2
  */
 
-import type { Block, BlockChild, ConfFile, Directive } from "../parser/ast.js";
+import type { Block, BlockChild, ConfFile, Directive, IncludeDirective } from "../parser/ast.js";
 import type { SchemaIndex } from "../schema/index.js";
 
 /**
@@ -62,6 +62,22 @@ export function walkBlocks(file: ConfFile, visit: (v: BlockVisit) => void): void
     }
   };
   recur(file.body, null);
+}
+
+/**
+ * 모든 include 지시어를 수집 (중첩 블록 안까지 재귀).
+ * keepalived 는 블록 안에서도 include 를 허용하므로 ast.body 만 보면 안 된다.
+ */
+export function collectIncludes(file: ConfFile): IncludeDirective[] {
+  const out: IncludeDirective[] = [];
+  const recur = (children: BlockChild[]) => {
+    for (const c of children) {
+      if (c.type === "include") out.push(c);
+      else if (c.type === "block") recur(c.body);
+    }
+  };
+  recur(file.body);
+  return out;
 }
 
 /** 모든 지시어를 담은 블록과 함께 방문 (DFS). */

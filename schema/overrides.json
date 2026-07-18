@@ -1840,12 +1840,9 @@
           "description": "응답 본문 MD5 다이제스트."
         },
         "status_code": {
-          "type": "int",
-          "min": 100,
-          "max": 599,
           "source": "manual",
           "srcRef": "check_http.c:583",
-          "description": "정상으로 간주할 HTTP 상태 코드."
+          "description": "정상으로 간주할 HTTP 상태 코드. 다중·범위 가능 (예: 200-299 400-499 503). 단일 int 아님."
         },
         "regex": {
           "source": "manual"

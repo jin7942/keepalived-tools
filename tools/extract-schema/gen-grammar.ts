@@ -52,8 +52,11 @@ function buildGrammar(schema: SchemaLike): unknown {
       { include: "#blocks" },
       { include: "#directives" },
       { include: "#strings" },
+      { include: "#sequence" },
       { include: "#variables" },
+      { include: "#ipcidr" },
       { include: "#numbers" },
+      { include: "#booleans" },
     ],
     repository: {
       comments: {
@@ -85,9 +88,33 @@ function buildGrammar(schema: SchemaLike): unknown {
         name: "variable.other.keepalived",
         match: "\\$[A-Za-z_][A-Za-z0-9_]*",
       },
+      sequence: {
+        // ~SEQ(start, end) 시퀀스 확장 (RFP §3.1).
+        name: "support.function.sequence.keepalived",
+        match: "~[A-Za-z_][\\w]*\\([^)]*\\)",
+      },
+      ipcidr: {
+        patterns: [
+          {
+            // IPv4 (+옵션 CIDR prefix). numbers 보다 먼저 매칭돼야 함.
+            name: "constant.numeric.ip.keepalived",
+            match:
+              "\\b(?:(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)(?:/\\d{1,2})?\\b",
+          },
+          {
+            // IPv6 (간이: hex 그룹 + 콜론, +옵션 prefix). 정밀 검증은 검증층 담당.
+            name: "constant.numeric.ip.keepalived",
+            match: "(?<![\\w:])(?:[0-9A-Fa-f]{0,4}:){2,7}[0-9A-Fa-f]{0,4}(?:/\\d{1,3})?",
+          },
+        ],
+      },
       numbers: {
         name: "constant.numeric.keepalived",
         match: "\\b\\d+(\\.\\d+)?\\b",
+      },
+      booleans: {
+        name: "constant.language.boolean.keepalived",
+        match: "\\b(?:true|false|on|off|yes|no)\\b",
       },
     },
   };

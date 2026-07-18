@@ -7,6 +7,7 @@
 
 import * as vscode from "vscode";
 import { quickFixesFor } from "../core/features/index.js";
+import { guard } from "./errorBoundary.js";
 
 const FIXABLE = new Set(["TYPE_INVALID_ENUM", "SYNTAX_UNKNOWN_DIRECTIVE"]);
 
@@ -18,6 +19,13 @@ export class KeepalivedCodeActionProvider implements vscode.CodeActionProvider {
     _range: vscode.Range | vscode.Selection,
     context: vscode.CodeActionContext
   ): vscode.ProviderResult<vscode.CodeAction[]> {
+    return guard("codeAction", () => this.collect(document, context), []);
+  }
+
+  private collect(
+    document: vscode.TextDocument,
+    context: vscode.CodeActionContext
+  ): vscode.CodeAction[] {
     const actions: vscode.CodeAction[] = [];
     const text = document.getText();
 

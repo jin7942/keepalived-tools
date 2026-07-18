@@ -5,7 +5,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { hoverAt, completeAt, format, definitionAt, quickFixesFor } from "../core/features/index.js";
+import { hoverAt, completeAt, format, definitionAt, quickFixesFor, outline, includeLinks } from "../core/features/index.js";
 
 // ---- hover ----
 
@@ -144,4 +144,116 @@ test("quickfix: unknown directive typo suggests nearest member", () => {
   const text = "vrrp_instance VI {\n priorty 100\n}\n";
   const fixes = quickFixesFor(text, "SYNTAX_UNKNOWN_DIRECTIVE", "priorty", 1, 1);
   assert.ok(fixes.some((f) => f.replacement === "priority"));
+});
+
+// ---- outline (document symbols) ----
+
+test("outline: top-level blocks with header detail", () => {
+  const text = "global_defs {\n}\nvrrp_instance VI_1 {\n priority 100\n}\n";
+  const syms = outline(text);
+  assert.equal(syms.length, 2);
+  assert.equal(syms[0].name, "global_defs");
+  assert.equal(syms[1].name, "vrrp_instance");
+  assert.equal(syms[1].detail, "VI_1");
+});
+
+test("outline: nested blocks become children", () => {
+  const text = "virtual_server 10.0.0.1 80 {\n real_server 10.0.0.2 80 {\n }\n}\n";
+  const syms = outline(text);
+  assert.equal(syms[0].name, "virtual_server");
+  assert.equal(syms[0].detail, "10.0.0.1 80");
+  assert.equal(syms[0].children.length, 1);
+  assert.equal(syms[0].children[0].name, "real_server");
+});
+
+test("outline: directives excluded, only blocks", () => {
+  const text = "global_defs {\n router_id X\n}\n";
+  const syms = outline(text);
+  assert.equal(syms.length, 1);
+  assert.equal(syms[0].children.length, 0);
+});
+
+// ---- include links ----
+
+test("includeLinks: extracts glob and range from include directives", () => {
+  const text = 'include /etc/keepalived/conf.d/*.conf\nglobal_defs {\n}\n';
+  const links = includeLinks(text);
+  assert.equal(links.length, 1);
+  assert.equal(links[0].glob, "/etc/keepalived/conf.d/*.conf");
+  assert.equal(links[0].range.start.line, 0);
+});
+
+test("includeLinks: none when no include", () => {
+  assert.deepEqual(includeLinks("global_defs {\n}\n"), []);
+});
+
+// ---- 포맷터 안전성 회귀 (공식 샘플) ----
+
+import { readdirSync as _readdirSync } from "node:fs";
+import { readFileSync as _readFileSync } from "node:fs";
+import { join as _join } from "node:path";
+import { parse as _parse } from "../core/parser/index.js";
+
+const _SAMPLES = _join(__dirname, "fixtures", "samples");
+
+/** 포맷 전후 내용 보존 검증용: 비공백 토큰 시그니처. */
+function tokenSig(text: string): string {
+  const toks: string[] = [];
+  const walk = (body: any[]) => {
+    for (const c of body) {
+      if (c.type === "block") {
+        toks.push("B:" + c.keyword, ...c.args.map((a: any) => a.text));
+        walk(c.body);
+        toks.push("}");
+      } else if (c.type === "directive") {
+        toks.push("D:" + c.keyword, ...c.values.map((v: any) => v.text));
+      } else if (c.type === "include") {
+        toks.push("I:" + c.glob);
+      }
+    }
+  };
+  walk(_parse(text).ast.body);
+  return toks.join("|");
+}
+
+for (const file of _readdirSync(_SAMPLES).filter((f) => f.endsWith(".conf"))) {
+  test(`formatter idempotent + content-preserving: ${file}`, () => {
+    const orig = _readFileSync(_join(_SAMPLES, file), "utf8");
+    const once = format(orig);
+    assert.equal(format(once), once, `not idempotent: ${file}`);
+    assert.equal(tokenSig(once), tokenSig(orig), `content altered: ${file}`);
+  });
+}
+
+// ---- completion enum: alias 지시어도 enum 값 제공 ----
+
+test("completion: alias directive lb_algo yields scheduler enum values", () => {
+  // " lb_algo " — col 9 = 값 입력 위치(키워드+공백 뒤).
+  const items = completeAt("virtual_server 10.0.0.1 80 {\n lb_algo \n}\n", 1, 9);
+  const labels = items.map((i) => i.label);
+  assert.ok(labels.includes("rr"));
+  assert.ok(labels.includes("wrr"));
+  assert.ok(items.every((i) => i.kind === "enum"));
+});
+
+test("completion: deeply nested url block resolves parent context", () => {
+  const t =
+    "virtual_server 10.0.0.1 80 {\n real_server 10.0.0.2 80 {\n  HTTP_GET {\n   url {\n    \n   }\n  }\n }\n}\n";
+  const labels = completeAt(t, 4, 4).map((i) => i.label);
+  assert.ok(labels.includes("path"));
+  assert.ok(labels.includes("status_code"));
+});
+
+// ---- hover: conditional 빌드옵션 + man 링크 ----
+
+test("hover: conditional directive shows build-option note", () => {
+  const h = hoverAt("global_defs {\n enable_snmp_vrrp on\n}\n", 1, 3);
+  assert.ok(h);
+  assert.ok(h!.markdown.includes("build option"));
+});
+
+test("hover: includes manpage link", () => {
+  const h = hoverAt("vrrp_instance VI {\n priority 100\n}\n", 1, 3);
+  assert.ok(h);
+  assert.ok(h!.markdown.includes("keepalived.conf(5)"));
 });

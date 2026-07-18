@@ -132,3 +132,62 @@ test("parser: brace on next line", () => {
   assert.equal(vi.type, "block");
   assert.equal(vi.body.length, 1);
 });
+
+// ---- M2 회귀: NEWLINE 토큰 end 위치 ----
+
+test("lexer: NEWLINE end is next line col 0", () => {
+  const toks = tokenize("x\ny");
+  const nl = toks.find((t) => t.type === "NEWLINE");
+  assert.ok(nl);
+  assert.equal(nl!.start.line, 0);
+  assert.equal(nl!.end.line, 1);
+  assert.equal(nl!.end.col, 0);
+});
+
+// ---- H1 회귀: 선두 BOM 스킵 ----
+
+test("lexer: leading BOM does not corrupt first keyword", () => {
+  const ast = parse("﻿global_defs {\n}\n").ast;
+  assert.equal(ast.body[0].type, "block");
+  assert.equal((ast.body[0] as Block).keyword, "global_defs");
+});
+
+// ---- 견고성 회귀: CRLF / 멀티바이트 ----
+
+test("parser: CRLF line endings parse like LF", () => {
+  const ast = parse("vrrp_instance VI {\r\n priority 100\r\n}\r\n").ast;
+  assert.equal(ast.body[0].type, "block");
+  assert.equal((ast.body[0] as Block).keyword, "vrrp_instance");
+});
+
+test("parser: multibyte argument counted in UTF-16 columns", () => {
+  const ast = parse("vrrp_instance 日本 {\n priority 100\n}\n").ast;
+  const blk = ast.body[0] as Block;
+  assert.equal(blk.args[0].text, "日本");
+  // '日本' = 2 UTF-16 units → 다음 줄 priority 들여쓰기 col 은 1.
+  const dir = blk.body[0] as Directive;
+  assert.equal(dir.range.start.col, 1);
+});
+
+// ---- 견고성 회귀: 비정상 입력에 크래시·무한루프 없음 ----
+
+test("robustness: pathological inputs never throw across the pipeline", async () => {
+  const { validateText } = await import("../core/validation/index.js");
+  const { format, completeAt, hoverAt } = await import("../core/features/index.js");
+  const evil = [
+    "", " ", "\n\n\n", "{", "}", "}}}{{{", "{".repeat(500),
+    "a".repeat(10000), "vrrp_instance " + "x".repeat(5000) + " {",
+    '"unterminated', "vrrp_instance VI {\n".repeat(200) + "}".repeat(200),
+    "global_defs {", "###\n!!!\n", "include", "include ",
+    "= = = = =", "vrrp_instance\t\t\tVI\t{\n}", "🔥 { 💀 }", "a {".repeat(100),
+  ];
+  for (const s of evil) {
+    assert.doesNotThrow(() => {
+      parse(s);
+      validateText(s);
+      format(s);
+      completeAt(s, 0, 0);
+      hoverAt(s, 0, 0);
+    }, `threw on input (len ${s.length})`);
+  }
+});

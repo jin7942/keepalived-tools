@@ -244,3 +244,57 @@ test("expanded: virtual_server ip_family enum validated", () => {
   const diags = validateText("virtual_server 10.0.0.1 80 {\n ip_family inet9\n}\n");
   assert.ok(codes(diags).includes("TYPE_INVALID_ENUM"));
 });
+
+// ---- C1 회귀: 중첩 include (블록 안) ----
+
+test("nested include inside a block is collected", () => {
+  const { collectIncludes } = require("../core/validation/index.js");
+  const { parse } = require("../core/parser/index.js");
+  const ast = parse("vrrp_instance VI {\n include sub.conf\n}\ninclude top.conf\n").ast;
+  const globs = collectIncludes(ast).map((n: { glob: string }) => n.glob).sort();
+  assert.deepEqual(globs, ["sub.conf", "top.conf"]);
+});
+
+// ---- M1 회귀: 순환 include 진단 (1회·명확 메시지) ----
+
+test("include cycle reported exactly once with full chain", () => {
+  const files = [
+    { path: "/a.conf", text: "include b.conf\n", resolvedIncludes: ["/b.conf"] },
+    { path: "/b.conf", text: "include a.conf\n", resolvedIncludes: ["/a.conf"] },
+  ];
+  const all = [...validateFiles(files, "/a.conf").values()].flat();
+  const cyc = all.filter((d) => d.code === "INCLUDE_CYCLE");
+  assert.equal(cyc.length, 1);
+  assert.ok(cyc[0].message.includes("→"));
+});
+
+test("include self-cycle detected", () => {
+  const files = [{ path: "/a.conf", text: "include a.conf\n", resolvedIncludes: ["/a.conf"] }];
+  const cyc = [...validateFiles(files, "/a.conf").values()].flat().filter((d) => d.code === "INCLUDE_CYCLE");
+  assert.equal(cyc.length, 1);
+});
+
+test("CRLF config validates clean (no false diagnostics)", () => {
+  const diags = validateText("vrrp_instance VI {\r\n priority 100\r\n}\r\n");
+  assert.deepEqual(codes(diags), []);
+});
+
+// ---- 공식 샘플 거짓 양성 회귀 (신뢰성 결정적 증거) ----
+// keepalived 2.3.4 공식 doc/samples 를 검증해 error 진단이 0 인지 확인.
+// 실제 정상 설정에 error 가 뜨면 신뢰성 위반(validation §1.1).
+
+import { readdirSync } from "node:fs";
+
+const SAMPLE_DIR = join(__dirname, "fixtures", "samples");
+
+for (const file of readdirSync(SAMPLE_DIR).filter((f) => f.endsWith(".conf"))) {
+  test(`official sample produces no error diagnostics: ${file}`, () => {
+    const diags = validateText(fixture(`samples/${file}`));
+    const errors = diags.filter((d) => d.severity === "error");
+    assert.deepEqual(
+      errors.map((e) => `${e.code}@${e.range.start.line + 1}: ${e.message}`),
+      [],
+      `false-positive errors in ${file}`
+    );
+  });
+}
